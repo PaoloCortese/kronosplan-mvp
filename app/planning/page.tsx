@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getAgencyProfile, hasPillars, AgencyProfile } from '@/lib/agencyProfile'
 import { platformIcons } from '@/components/SocialIcons'
 
 type PostStatus = 'ready' | 'copied' | 'published'
@@ -55,6 +56,7 @@ export default function PlanningPage() {
   const [loading, setLoading] = useState(true)
   const [replicatingId, setReplicatingId] = useState<string | null>(null)
   const [agencyId, setAgencyId] = useState<string | null>(null)
+  const [profile, setProfile] = useState<AgencyProfile | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -64,6 +66,13 @@ export default function PlanningPage() {
         router.push('/')
         return
       }
+
+      const userProfile = await getAgencyProfile(session.user.id)
+      if (!userProfile) {
+        router.push('/onboarding')
+        return
+      }
+      setProfile(userProfile)
 
       const aid = await getOrCreateUserAgency()
       if (!aid) return
@@ -224,6 +233,22 @@ export default function PlanningPage() {
       <div className="max-w-4xl mx-auto py-8">
         <h1 className="text-2xl font-semibold text-[#1a365d] mb-8">Planning</h1>
 
+        {!hasPillars(profile) && (
+          <Card className="mb-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                Pillar non impostati. Impostali per personalizzare meglio i contenuti.
+              </p>
+              <button
+                onClick={() => router.push('/pillars')}
+                className="px-3 py-1 text-xs text-[#1a365d] border border-[#1a365d] rounded hover:bg-[#1a365d]/5 transition-colors"
+              >
+                Imposta pillar
+              </button>
+            </div>
+          </Card>
+        )}
+
         <div className="space-y-3">
           {posts.map((post) => {
             const availablePlatforms = getAvailablePlatforms(post)
@@ -262,15 +287,17 @@ export default function PlanningPage() {
                     </p>
                   </div>
 
-                  {/* Stato copia - doppia spunta + data/ora */}
-                  <div className="flex-shrink-0 ml-2 flex flex-col items-center">
-                    <CheckIcon copied={isCopied} />
-                    {isCopied && post.copiedAt && (
-                      <span className="text-[10px] text-gray-400 mt-0.5">
-                        {formatDateTime(post.copiedAt)}
-                      </span>
-                    )}
-                  </div>
+                  {/* Stato copia - doppia spunta + data/ora (solo se copiato) */}
+                  {isCopied && (
+                    <div className="flex-shrink-0 ml-2 flex flex-col items-center">
+                      <CheckIcon copied={true} />
+                      {post.copiedAt && (
+                        <span className="text-[10px] text-gray-400 mt-0.5">
+                          {formatDateTime(post.copiedAt)}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Replica su altre piattaforme + Copia */}

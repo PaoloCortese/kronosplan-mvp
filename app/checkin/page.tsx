@@ -7,6 +7,7 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getAgencyProfile } from '@/lib/agencyProfile'
 import { platformIconsExtended } from '@/components/SocialIcons'
 
 const platforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
@@ -25,6 +26,13 @@ export default function CheckinPage() {
         router.push('/')
         return
       }
+
+      const profile = await getAgencyProfile(session.user.id)
+      if (!profile) {
+        router.push('/onboarding')
+        return
+      }
+
       const aid = await getOrCreateUserAgency()
       setAgencyId(aid)
       setLoading(false)
@@ -106,6 +114,16 @@ export default function CheckinPage() {
             </Button>
           </form>
         </Card>
+
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => router.push('/onboarding')}
+            className="text-xs text-gray-400 hover:text-gray-600"
+          >
+            Profilo agenzia
+          </button>
+        </div>
       </div>
     </main>
   )

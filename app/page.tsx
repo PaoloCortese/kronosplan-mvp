@@ -6,6 +6,7 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import { signIn, signUp, getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getAgencyProfile } from '@/lib/agencyProfile'
 
 export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -20,7 +21,12 @@ export default function HomePage() {
       const session = await getSession()
       if (session) {
         await getOrCreateUserAgency()
-        router.push('/checkin')
+        const profile = await getAgencyProfile(session.user.id)
+        if (profile) {
+          router.push('/checkin')
+        } else {
+          router.push('/onboarding')
+        }
       } else {
         setLoading(false)
       }
@@ -31,16 +37,41 @@ export default function HomePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (password.length < 6) {
+      setError('La password deve avere almeno 6 caratteri.')
+      return
+    }
+
     try {
       if (mode === 'login') {
         await signIn(email, password)
+        const session = await getSession()
+        if (session) {
+          await getOrCreateUserAgency()
+          const profile = await getAgencyProfile(session.user.id)
+          if (profile) {
+            router.push('/checkin')
+          } else {
+            router.push('/onboarding')
+          }
+        }
       } else {
-        await signUp(email, password)
+        const result = await signUp(email, password)
+        if (result.user) {
+          await getOrCreateUserAgency()
+          router.push('/onboarding')
+        }
       }
-      await getOrCreateUserAgency()
-      router.push('/checkin')
-    } catch {
-      setError('Qualcosa non ha funzionato. Riprova.')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : ''
+      if (message.includes('Invalid login credentials')) {
+        setError('Email o password non corretti.')
+      } else if (message.includes('Email not confirmed')) {
+        setError('Conferma la tua email prima di accedere.')
+      } else {
+        setError('Qualcosa non ha funzionato. Riprova.')
+      }
     }
   }
 
@@ -69,8 +100,12 @@ export default function HomePage() {
               onChange={setPassword}
               type="password"
               placeholder="Password"
-              className="mb-6"
+              className="mb-2"
             />
+            {mode === 'register' && (
+              <p className="text-xs text-gray-400 mb-4">Minimo 6 caratteri</p>
+            )}
+            {mode === 'login' && <div className="mb-4" />}
             {error && (
               <p className="text-sm text-red-600 mb-4">{error}</p>
             )}
