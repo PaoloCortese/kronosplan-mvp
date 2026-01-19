@@ -7,6 +7,14 @@ import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
 
+const platformLabels: Record<string, string> = {
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  linkedin: 'LinkedIn',
+  tiktok: 'TikTok',
+  x: 'X'
+}
+
 function ResponseContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -17,7 +25,7 @@ function ResponseContent() {
   const [postId, setPostId] = useState<string | null>(null)
   const [postCopy, setPostCopy] = useState<string | null>(null)
   const [generationError, setGenerationError] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null)
   const [copyError, setCopyError] = useState(false)
 
   useEffect(() => {
@@ -104,7 +112,7 @@ function ResponseContent() {
     setGenerating(false)
   }
 
-  const handleCopy = async () => {
+  const handleCopy = async (targetPlatform: string) => {
     if (!postCopy || !postId) return
     setCopyError(false)
     try {
@@ -116,7 +124,7 @@ function ResponseContent() {
         .update({ status: 'copied' })
         .eq('id', postId)
 
-      setCopied(true)
+      setCopiedPlatform(targetPlatform)
     } catch {
       setCopyError(true)
     }
@@ -140,39 +148,40 @@ function ResponseContent() {
     }
 
     if (postId && postCopy) {
-      if (copied) {
-        return (
-          <Card>
-            <p className="text-sm text-gray-700 mb-4">Copiato.</p>
-            <Button
-              variant="primary"
-              onClick={() => window.location.href = '/planning'}
-            >
-              Vai al planning
-            </Button>
-          </Card>
-        )
-      }
+      const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x']
 
       return (
         <Card>
-          <p className="text-sm text-gray-500 mb-4">Copia e pubblica.</p>
           <div className="mb-6">
             <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
 {postCopy}
             </pre>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="primary" onClick={handleCopy}>
-              Copia
-            </Button>
-            <Button
-              variant="secondary"
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">Copia su</span>
+              {allPlatforms.map(p => (
+                <button
+                  key={p}
+                  onClick={() => handleCopy(p)}
+                  className={`px-2 py-0.5 text-xs rounded transition-colors ${
+                    copiedPlatform === p
+                      ? 'text-blue-500 font-medium'
+                      : 'text-gray-400 hover:text-[#1a365d] hover:bg-gray-50'
+                  }`}
+                >
+                  {platformLabels[p]}
+                  {copiedPlatform === p && ' ✓'}
+                </button>
+              ))}
+            </div>
+            <button
               onClick={() => window.location.href = '/planning'}
+              className="text-xs text-[#1a365d] hover:underline"
             >
-              Vai al planning
-            </Button>
+              Vai al planning →
+            </button>
           </div>
           {copyError && (
             <p className="text-sm text-red-600 mt-4">Non è stato possibile copiare. Riprova.</p>
