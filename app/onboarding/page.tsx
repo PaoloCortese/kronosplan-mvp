@@ -105,7 +105,8 @@ export default function OnboardingPage() {
     })
 
     if (!result.success) {
-      setError('Qualcosa non ha funzionato. Riprova.')
+      console.error('Errore salvataggio:', result.error)
+      setError(result.error || 'Qualcosa non ha funzionato. Riprova.')
       setSaving(false)
       return
     }
