@@ -14,9 +14,10 @@ export async function POST(request: Request) {
     )
 
     return NextResponse.json({ copy })
-  } catch {
+  } catch (error) {
+    console.error('Generate API error:', error)
     return NextResponse.json(
-      { error: 'Generation failed' },
+      { error: 'Generation failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
