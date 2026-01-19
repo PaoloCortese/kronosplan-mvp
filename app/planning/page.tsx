@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { platformIcons } from '@/components/SocialIcons'
 
 type PostStatus = 'ready' | 'copied' | 'published'
 
@@ -19,15 +20,7 @@ interface Post {
   copiedAt: string | null
 }
 
-const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x']
-
-const platformLabels: Record<string, string> = {
-  facebook: 'Facebook',
-  instagram: 'Instagram',
-  linkedin: 'LinkedIn',
-  tiktok: 'TikTok',
-  x: 'X'
-}
+const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
 
 // Icona doppia spunta stile WhatsApp
 function CheckIcon({ copied }: { copied: boolean }) {
@@ -247,11 +240,16 @@ export default function PlanningPage() {
                     </span>
                   </div>
 
-                  {/* Piattaforma */}
-                  <div className="w-20 flex-shrink-0">
-                    <span className="text-xs text-gray-400 capitalize">
-                      {platformLabels[post.platform] || post.platform}
-                    </span>
+                  {/* Piattaforma - icona simbolo */}
+                  <div className="w-8 flex-shrink-0">
+                    {(() => {
+                      const IconComponent = platformIcons[post.platform as keyof typeof platformIcons]
+                      return IconComponent ? (
+                        <IconComponent className="w-4 h-4 text-gray-400" />
+                      ) : (
+                        <span className="text-xs text-gray-400">{post.platform}</span>
+                      )
+                    })()}
                   </div>
 
                   {/* Post preview */}
@@ -278,25 +276,29 @@ export default function PlanningPage() {
                 {/* Replica su altre piattaforme + Copia */}
                 <div className="mt-3 pt-3 border-t border-gray-100">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {availablePlatforms.length > 0 && (
                         <>
                           <span className="text-xs text-gray-400">Replica su</span>
                           {isReplicating ? (
                             <span className="text-xs text-gray-500">...</span>
                           ) : (
-                            availablePlatforms.map(p => (
-                              <button
-                                key={p}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleReplicate(post, p)
-                                }}
-                                className="px-2 py-0.5 text-xs text-gray-400 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
-                              >
-                                {platformLabels[p]}
-                              </button>
-                            ))
+                            availablePlatforms.map(p => {
+                              const IconComponent = platformIcons[p as keyof typeof platformIcons]
+                              return (
+                                <button
+                                  key={p}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleReplicate(post, p)
+                                  }}
+                                  className="p-1.5 text-gray-400 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
+                                  title={p.charAt(0).toUpperCase() + p.slice(1)}
+                                >
+                                  <IconComponent className="w-4 h-4" />
+                                </button>
+                              )
+                            })
                           )}
                         </>
                       )}

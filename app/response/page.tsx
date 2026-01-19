@@ -6,14 +6,9 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { platformIcons } from '@/components/SocialIcons'
 
-const platformLabels: Record<string, string> = {
-  facebook: 'Facebook',
-  instagram: 'Instagram',
-  linkedin: 'LinkedIn',
-  tiktok: 'TikTok',
-  x: 'X'
-}
+const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
 
 function ResponseContent() {
   const searchParams = useSearchParams()
@@ -148,8 +143,6 @@ function ResponseContent() {
     }
 
     if (postId && postCopy) {
-      const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x']
-
       return (
         <Card>
           <div className="mb-6">
@@ -159,22 +152,25 @@ function ResponseContent() {
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span className="text-xs text-gray-400">Copia su</span>
-              {allPlatforms.map(p => (
-                <button
-                  key={p}
-                  onClick={() => handleCopy(p)}
-                  className={`px-2 py-0.5 text-xs rounded transition-colors ${
-                    copiedPlatform === p
-                      ? 'text-blue-500 font-medium'
-                      : 'text-gray-400 hover:text-[#1a365d] hover:bg-gray-50'
-                  }`}
-                >
-                  {platformLabels[p]}
-                  {copiedPlatform === p && ' ✓'}
-                </button>
-              ))}
+              {allPlatforms.map(p => {
+                const IconComponent = platformIcons[p]
+                return (
+                  <button
+                    key={p}
+                    onClick={() => handleCopy(p)}
+                    className={`p-1.5 rounded transition-colors ${
+                      copiedPlatform === p
+                        ? 'text-blue-500 bg-blue-50'
+                        : 'text-gray-400 hover:text-[#1a365d] hover:bg-gray-50'
+                    }`}
+                    title={p.charAt(0).toUpperCase() + p.slice(1)}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                  </button>
+                )
+              })}
             </div>
             <button
               onClick={() => window.location.href = '/planning'}
