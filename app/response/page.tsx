@@ -133,7 +133,7 @@ function ResponseContent() {
             variant="primary"
             onClick={() => window.location.href = '/planning'}
           >
-            Vai al calendario
+            Vai al planning
           </Button>
         </Card>
       )
@@ -148,7 +148,7 @@ function ResponseContent() {
               variant="primary"
               onClick={() => window.location.href = '/planning'}
             >
-              Vai al calendario
+              Vai al planning
             </Button>
           </Card>
         )
@@ -171,7 +171,7 @@ function ResponseContent() {
               variant="secondary"
               onClick={() => window.location.href = '/planning'}
             >
-              Vai al calendario
+              Vai al planning
             </Button>
           </div>
           {copyError && (
@@ -203,7 +203,7 @@ function ResponseContent() {
           variant="primary"
           onClick={() => window.location.href = '/planning'}
         >
-          Vai al calendario
+          Vai al planning
         </Button>
       </Card>
     )
