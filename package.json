@@ -2,6 +2,9 @@
   "name": "kronosplan",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@supabase/supabase-js": "^2.90.1",
     "next": "^15.1.7",
     "react": "^19.0.0",
