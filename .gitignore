@@ -58,6 +58,8 @@ Public/
 .spesedicasa-profile/
 .claude/
 .claude-code/
+.claude.json
+.claude.json.backup
 projects/
 adv-consulenza/
 eurobet-ai/
@@ -66,3 +68,21 @@ flipmetrics-app/
 metron-manifesto/
 metronepage/
 sports-betting-app/
+
+# Shell config files (not part of project)
+.zshrc
+.zprofile
+.zprofile.save
+.zsh_history
+.CFUserTextEncoding
+.gitconfig
+.lesshst
+.swiftpm/
+
+# Misc files not part of project
+Messag1.html
+pglite-debug.log
+rls-runtime-test.sql
+POST_DEPLOY_HARDENING.md
+manifest.json
+service-worker.js
