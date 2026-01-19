@@ -16,6 +16,7 @@ interface Post {
   createdAt: string
   status: PostStatus
   copy: string
+  copiedAt: string | null
 }
 
 const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x']
@@ -77,7 +78,7 @@ export default function PlanningPage() {
 
       const { data } = await supabase
         .from('posts')
-        .select('id, pillar, platform, scheduled_date, created_at, status, copy')
+        .select('id, pillar, platform, scheduled_date, created_at, status, copy, copied_at')
         .eq('agency_id', aid)
         .order('created_at', { ascending: false })
 
@@ -91,7 +92,8 @@ export default function PlanningPage() {
             scheduledDate: post.scheduled_date,
             createdAt: post.created_at,
             status: (post.status as PostStatus) || 'ready',
-            copy: post.copy || ''
+            copy: post.copy || '',
+            copiedAt: post.copied_at || null
           }))
         setPosts(formattedPosts)
       }
@@ -160,7 +162,8 @@ export default function PlanningPage() {
         scheduledDate: newPost.scheduled_date,
         createdAt: newPost.created_at,
         status: newPost.status as PostStatus,
-        copy: newPost.copy
+        copy: newPost.copy,
+        copiedAt: newPost.copied_at || null
       }, ...prev])
     }
 
@@ -180,6 +183,36 @@ export default function PlanningPage() {
       day: 'numeric',
       month: 'short'
     })
+  }
+
+  const formatDateTime = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleString('it-IT', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const handleCopy = async (post: Post) => {
+    try {
+      await navigator.clipboard.writeText(post.copy)
+      const now = new Date().toISOString()
+
+      await supabase
+        .from('posts')
+        .update({ status: 'copied', copied_at: now })
+        .eq('id', post.id)
+
+      setPosts(prev => prev.map(p =>
+        p.id === post.id
+          ? { ...p, status: 'copied' as PostStatus, copiedAt: now }
+          : p
+      ))
+    } catch (error) {
+      console.error('Copy failed:', error)
+    }
   }
 
   if (loading) {
@@ -231,36 +264,56 @@ export default function PlanningPage() {
                     </p>
                   </div>
 
-                  {/* Stato copia - doppia spunta */}
-                  <div className="flex-shrink-0 ml-2">
+                  {/* Stato copia - doppia spunta + data/ora */}
+                  <div className="flex-shrink-0 ml-2 flex flex-col items-center">
                     <CheckIcon copied={isCopied} />
+                    {isCopied && post.copiedAt && (
+                      <span className="text-[10px] text-gray-400 mt-0.5">
+                        {formatDateTime(post.copiedAt)}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Replica su altre piattaforme */}
-                {availablePlatforms.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
+                {/* Replica su altre piattaforme + Copia */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-400">Replica su</span>
-                      {isReplicating ? (
-                        <span className="text-xs text-gray-500">...</span>
-                      ) : (
-                        availablePlatforms.map(p => (
-                          <button
-                            key={p}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleReplicate(post, p)
-                            }}
-                            className="px-2 py-0.5 text-xs text-gray-400 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
-                          >
-                            {platformLabels[p]}
-                          </button>
-                        ))
+                      {availablePlatforms.length > 0 && (
+                        <>
+                          <span className="text-xs text-gray-400">Replica su</span>
+                          {isReplicating ? (
+                            <span className="text-xs text-gray-500">...</span>
+                          ) : (
+                            availablePlatforms.map(p => (
+                              <button
+                                key={p}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleReplicate(post, p)
+                                }}
+                                className="px-2 py-0.5 text-xs text-gray-400 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
+                              >
+                                {platformLabels[p]}
+                              </button>
+                            ))
+                          )}
+                        </>
                       )}
                     </div>
+                    {!isCopied && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleCopy(post)
+                        }}
+                        className="px-3 py-1 text-xs text-[#1a365d] border border-[#1a365d] rounded hover:bg-[#1a365d]/5 transition-colors"
+                      >
+                        Copia
+                      </button>
+                    )}
                   </div>
-                )}
+                </div>
               </Card>
             )
           })}

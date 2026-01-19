@@ -118,10 +118,10 @@ function ResponseContent() {
     try {
       await navigator.clipboard.writeText(postCopy)
 
-      // Aggiorna stato post a 'copied'
+      // Aggiorna stato post a 'copied' con timestamp
       await supabase
         .from('posts')
-        .update({ status: 'copied' })
+        .update({ status: 'copied', copied_at: new Date().toISOString() })
         .eq('id', postId)
 
       setCopiedPlatform(targetPlatform)
