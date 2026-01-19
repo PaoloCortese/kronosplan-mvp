@@ -12,6 +12,7 @@ export default function HomePage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function HomePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     try {
       if (mode === 'login') {
         await signIn(email, password)
@@ -37,8 +39,8 @@ export default function HomePage() {
       }
       await getOrCreateUserAgency()
       router.push('/checkin')
-    } catch (error) {
-      console.error('Auth error:', error)
+    } catch {
+      setError('Qualcosa non ha funzionato. Riprova.')
     }
   }
 
@@ -69,6 +71,9 @@ export default function HomePage() {
               placeholder="Password"
               className="mb-6"
             />
+            {error && (
+              <p className="text-sm text-red-600 mb-4">{error}</p>
+            )}
             <Button type="submit" variant="primary" className="w-full mb-4">
               {mode === 'login' ? 'Accedi' : 'Registrati'}
             </Button>

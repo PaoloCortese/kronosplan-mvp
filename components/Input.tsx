@@ -15,7 +15,7 @@ export default function Input({
   type = 'text',
   className = ''
 }: InputProps) {
-  const baseClasses = 'px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a365d] focus:border-transparent w-full text-sm'
+  const baseClasses = 'px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1a365d] focus:border-transparent w-full text-sm placeholder:text-gray-400'
 
   if (multiline) {
     return (

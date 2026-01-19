@@ -31,3 +31,38 @@ run-tests.js
 
 # Old backups
 src-old-backup/
+.vercel
+
+# Home directory folders (not part of project)
+Library/
+Applications/
+Desktop/
+Documents/
+Downloads/
+Movies/
+Music/
+Pictures/
+Public/
+.Trash/
+.cache/
+.local/
+.npm/
+.nvm/
+.ssh/
+.cups/
+.zsh_sessions/
+.antigravity/
+.codex/
+.config/
+.gemini/
+.spesedicasa-profile/
+.claude/
+.claude-code/
+projects/
+adv-consulenza/
+eurobet-ai/
+fasttrack/
+flipmetrics-app/
+metron-manifesto/
+metronepage/
+sports-betting-app/

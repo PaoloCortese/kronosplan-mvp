@@ -8,8 +8,17 @@ import Input from '@/components/Input'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession, getOrCreateUserAgency } from '@/lib/auth'
 
+const platforms = [
+  { id: 'facebook', label: 'Facebook' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'tiktok', label: 'TikTok' },
+  { id: 'x', label: 'X' },
+]
+
 export default function CheckinPage() {
   const [response, setResponse] = useState('')
+  const [selectedPlatform, setSelectedPlatform] = useState('facebook')
   const [agencyId, setAgencyId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -45,9 +54,9 @@ export default function CheckinPage() {
     })
 
     if (hasNews) {
-      router.push(`/response?type=novita&text=${encodeURIComponent(response)}`)
+      router.push(`/response?type=novita&text=${encodeURIComponent(response)}&platform=${selectedPlatform}`)
     } else {
-      router.push('/response?type=nessuna')
+      router.push(`/response?type=nessuna&platform=${selectedPlatform}`)
     }
   }
 
@@ -71,10 +80,28 @@ export default function CheckinPage() {
             <Input
               value={response}
               onChange={setResponse}
-              placeholder=""
+              placeholder="Sara ha chiuso la sua prima vendita..."
               multiline={true}
               className="mb-6"
             />
+
+            <p className="text-xs text-gray-500 mb-3">Pubblica su</p>
+            <div className="flex gap-2 mb-6">
+              {platforms.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setSelectedPlatform(p.id)}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                    selectedPlatform === p.id
+                      ? 'border-[#1a365d] bg-[#1a365d]/5 text-[#1a365d]'
+                      : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
 
             <Button type="submit" variant="primary">
               Avanti

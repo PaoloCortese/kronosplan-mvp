@@ -1,32 +1,213 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
+import { supabase } from '@/lib/supabaseClient'
+import { getSession, getOrCreateUserAgency } from '@/lib/auth'
 
 function ResponseContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const type = searchParams.get('type')
   const text = searchParams.get('text')
+  const platform = searchParams.get('platform') || 'facebook'
+  const [generating, setGenerating] = useState(false)
+  const [postId, setPostId] = useState<string | null>(null)
+  const [postCopy, setPostCopy] = useState<string | null>(null)
+  const [generationError, setGenerationError] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [copyError, setCopyError] = useState(false)
+
+  useEffect(() => {
+    if (type === 'novita' && text && !postId && !generating) {
+      generatePost()
+    }
+  }, [type, text, postId, generating])
+
+  async function generatePost() {
+    setGenerating(true)
+
+    const session = await getSession()
+    if (!session) {
+      router.push('/')
+      return
+    }
+
+    const agencyId = await getOrCreateUserAgency()
+    if (!agencyId) {
+      setGenerationError(true)
+      return
+    }
+
+    // Get agency details
+    const { data: agency } = await supabase
+      .from('agencies')
+      .select('name, city')
+      .eq('id', agencyId)
+      .single()
+
+    if (!agency) {
+      setGenerationError(true)
+      return
+    }
+
+    // Get current week start
+    const today = new Date()
+    const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1))
+    const weekStartStr = weekStart.toISOString().split('T')[0]
+
+    // Find scheduled post for this week (must exist)
+    const { data: scheduledPost } = await supabase
+      .from('posts')
+      .select('id, copy, platform, pillar')
+      .eq('agency_id', agencyId)
+      .gte('scheduled_date', weekStartStr)
+      .eq('status', 'ready')
+      .is('copy', null)
+      .single()
+
+    if (!scheduledPost) {
+      setGenerationError(true)
+      setGenerating(false)
+      return
+    }
+
+    // Generate copy via API route
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        checkinResponse: text,
+        agencyName: agency.name,
+        agencyCity: agency.city,
+        pillar: scheduledPost.pillar || 'chi_siamo',
+        platform: platform
+      })
+    })
+
+    if (!response.ok) {
+      setGenerationError(true)
+      setGenerating(false)
+      return
+    }
+
+    const { copy } = await response.json()
+
+    // Update post copy and platform
+    const { error: updateError } = await supabase
+      .from('posts')
+      .update({ copy, platform })
+      .eq('id', scheduledPost.id)
+
+    if (updateError) {
+      setGenerationError(true)
+      setGenerating(false)
+      return
+    }
+
+    // Verifica che il post sia stato effettivamente salvato
+    const { data: verifiedPost } = await supabase
+      .from('posts')
+      .select('id, copy')
+      .eq('id', scheduledPost.id)
+      .single()
+
+    if (!verifiedPost || !verifiedPost.copy) {
+      setGenerationError(true)
+      setGenerating(false)
+      return
+    }
+
+    setPostId(scheduledPost.id)
+    setPostCopy(verifiedPost.copy)
+    setGenerating(false)
+  }
+
+  const handleCopy = async () => {
+    if (!postCopy || !postId) return
+    setCopyError(false)
+    try {
+      await navigator.clipboard.writeText(postCopy)
+
+      // Aggiorna stato post a 'copied'
+      await supabase
+        .from('posts')
+        .update({ status: 'copied' })
+        .eq('id', postId)
+
+      setCopied(true)
+    } catch {
+      setCopyError(true)
+    }
+  }
 
   if (type === 'novita') {
-    // S2a: Novità rilevata
-    // Estrae il fatto principale dal testo (simulato per MVP)
-    const extractedFact = text?.split('.')[0] || 'Novità ricevuta'
+    if (generationError) {
+      return (
+        <Card>
+          <p className="text-sm text-gray-700 mb-6">
+            Ok. I post di questa settimana sono nel calendario.
+          </p>
+          <Button
+            variant="primary"
+            onClick={() => window.location.href = '/planning'}
+          >
+            Vai al calendario
+          </Button>
+        </Card>
+      )
+    }
+
+    if (postId && postCopy) {
+      if (copied) {
+        return (
+          <Card>
+            <p className="text-sm text-gray-700 mb-4">Copiato.</p>
+            <Button
+              variant="primary"
+              onClick={() => window.location.href = '/planning'}
+            >
+              Vai al calendario
+            </Button>
+          </Card>
+        )
+      }
+
+      return (
+        <Card>
+          <p className="text-sm text-gray-500 mb-4">Copia e pubblica.</p>
+          <div className="mb-6">
+            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+{postCopy}
+            </pre>
+          </div>
+
+          <div className="flex gap-3">
+            <Button variant="primary" onClick={handleCopy}>
+              Copia
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => window.location.href = '/planning'}
+            >
+              Vai al calendario
+            </Button>
+          </div>
+          {copyError && (
+            <p className="text-sm text-red-600 mt-4">Non è stato possibile copiare. Riprova.</p>
+          )}
+        </Card>
+      )
+    }
 
     return (
       <Card>
-        <p className="text-sm text-gray-700 mb-6">
-          {extractedFact}. Ho preparato un post. Lo trovi qui.
-        </p>
-
-        <Button
-          variant="primary"
-          onClick={() => window.location.href = '/post/1'}
-        >
-          Vedi post
-        </Button>
+        <p className="text-sm text-gray-700 mb-4">Sto preparando il post...</p>
+        <div className="flex items-center justify-center py-4">
+          <div className="w-6 h-6 border-2 border-[#1a365d] border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </Card>
     )
   }
@@ -41,7 +222,7 @@ function ResponseContent() {
 
         <Button
           variant="primary"
-          onClick={() => window.location.href = '/calendario'}
+          onClick={() => window.location.href = '/planning'}
         >
           Vai al calendario
         </Button>
