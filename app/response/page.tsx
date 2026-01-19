@@ -58,22 +58,6 @@ function ResponseContent() {
     const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1))
     const weekStartStr = weekStart.toISOString().split('T')[0]
 
-    // Find scheduled post for this week (must exist)
-    const { data: scheduledPost } = await supabase
-      .from('posts')
-      .select('id, copy, platform, pillar')
-      .eq('agency_id', agencyId)
-      .gte('scheduled_date', weekStartStr)
-      .eq('status', 'ready')
-      .is('copy', null)
-      .single()
-
-    if (!scheduledPost) {
-      setGenerationError(true)
-      setGenerating(false)
-      return
-    }
-
     // Generate copy via API route
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -82,7 +66,7 @@ function ResponseContent() {
         checkinResponse: text,
         agencyName: agency.name,
         agencyCity: agency.city,
-        pillar: scheduledPost.pillar || 'chi_siamo',
+        pillar: 'chi_siamo',
         platform: platform
       })
     })
@@ -95,33 +79,28 @@ function ResponseContent() {
 
     const { copy } = await response.json()
 
-    // Update post copy and platform
-    const { error: updateError } = await supabase
+    // Create new post with generated copy
+    const { data: newPost, error: insertError } = await supabase
       .from('posts')
-      .update({ copy, platform })
-      .eq('id', scheduledPost.id)
-
-    if (updateError) {
-      setGenerationError(true)
-      setGenerating(false)
-      return
-    }
-
-    // Verifica che il post sia stato effettivamente salvato
-    const { data: verifiedPost } = await supabase
-      .from('posts')
+      .insert({
+        agency_id: agencyId,
+        pillar: 'chi_siamo',
+        platform: platform,
+        scheduled_date: weekStartStr,
+        status: 'ready',
+        copy: copy
+      })
       .select('id, copy')
-      .eq('id', scheduledPost.id)
       .single()
 
-    if (!verifiedPost || !verifiedPost.copy) {
+    if (insertError || !newPost) {
       setGenerationError(true)
       setGenerating(false)
       return
     }
 
-    setPostId(scheduledPost.id)
-    setPostCopy(verifiedPost.copy)
+    setPostId(newPost.id)
+    setPostCopy(newPost.copy)
     setGenerating(false)
   }
 
