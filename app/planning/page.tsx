@@ -283,7 +283,7 @@ export default function PlanningPage() {
               <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" opacity="0.3" />
               <path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z" />
             </svg>
-            <span className="text-xs">Bussola</span>
+            <span className="text-xs">Bussola social</span>
           </button>
         </div>
 
