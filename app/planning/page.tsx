@@ -271,7 +271,15 @@ export default function PlanningPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto py-8">
-        <h1 className="text-2xl font-semibold text-[#1a365d] mb-8">Planning</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-semibold text-[#1a365d]">Planning</h1>
+          <button
+            onClick={() => router.push('/rotta')}
+            className="text-sm text-gray-400 hover:text-[#1a365d] transition-colors"
+          >
+            La tua rotta
+          </button>
+        </div>
 
         {!hasPillars(profile) && (
           <Card className="mb-4">
