@@ -88,7 +88,7 @@ export default function CheckinPage() {
               className="mb-6"
             />
 
-            <p className="text-xs text-gray-500 mb-3">Pubblica su</p>
+            <p className="text-xs text-gray-500 mb-3">Genera per</p>
             <div className="flex flex-wrap gap-2 mb-6">
               {platforms.map((p) => {
                 const IconComponent = platformIconsExtended[p]
