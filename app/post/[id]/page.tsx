@@ -9,11 +9,12 @@ import { getSession, getOrCreateUserAgency } from '@/lib/auth'
 
 export default function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
-  const [copied, setCopied] = useState(false)
   const [postCopy, setPostCopy] = useState('')
+  const [editedCopy, setEditedCopy] = useState('')
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [agencyId, setAgencyId] = useState<string | null>(null)
-  const [copyError, setCopyError] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const router = useRouter()
 
@@ -37,6 +38,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
       if (data && data.copy) {
         setPostCopy(data.copy)
+        setEditedCopy(data.copy)
         setLoading(false)
       } else {
         setNotFound(true)
@@ -57,27 +59,22 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     }
   }, [notFound, router])
 
-  const handleCopy = async () => {
-    setCopyError(false)
-    try {
-      await navigator.clipboard.writeText(postCopy)
+  const handleSave = async () => {
+    setSaving(true)
+    await supabase
+      .from('posts')
+      .update({ copy: editedCopy })
+      .eq('id', unwrappedParams.id)
+      .eq('agency_id', agencyId)
 
-      // Aggiorna stato post a 'copied'
-      await supabase
-        .from('posts')
-        .update({ status: 'copied' })
-        .eq('id', unwrappedParams.id)
-        .eq('agency_id', agencyId)
+    setPostCopy(editedCopy)
+    setIsEditing(false)
+    setSaving(false)
+  }
 
-      setCopied(true)
-
-      // Reset dopo 2 secondi
-      setTimeout(() => {
-        setCopied(false)
-      }, 2000)
-    } catch {
-      setCopyError(true)
-    }
+  const handleCancel = () => {
+    setEditedCopy(postCopy)
+    setIsEditing(false)
   }
 
   if (loading) {
@@ -112,37 +109,45 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     )
   }
 
-  if (copied) {
-    // S4: Post copiato
-    return (
-      <main className="min-h-screen bg-white flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <Card>
-            <p className="text-sm text-gray-700 mb-4">Copiato.</p>
-            <p className="text-sm text-gray-700">Fatto.</p>
-          </Card>
-        </div>
-      </main>
-    )
-  }
-
-  // S3: Visualizzazione post
+  // Visualizzazione post
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <Card>
-          <p className="text-sm text-gray-500 mb-4">Copia e pubblica.</p>
-          <div className="mb-6">
-            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+          {isEditing ? (
+            <>
+              <p className="text-sm text-gray-500 mb-4">Modifica il post</p>
+              <textarea
+                value={editedCopy}
+                onChange={(e) => setEditedCopy(e.target.value)}
+                className="w-full h-48 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a365d] resize-none mb-6"
+              />
+              <div className="flex gap-3">
+                <Button variant="primary" onClick={handleSave} disabled={saving}>
+                  {saving ? 'Salvataggio...' : 'Salva'}
+                </Button>
+                <Button variant="secondary" onClick={handleCancel}>
+                  Annulla
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-6">
+                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
 {postCopy}
-            </pre>
-          </div>
+                </pre>
+              </div>
 
-          <Button variant="primary" onClick={handleCopy}>
-            Copia
-          </Button>
-          {copyError && (
-            <p className="text-sm text-red-600 mt-4">Non è stato possibile copiare. Riprova.</p>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="primary" onClick={() => setIsEditing(true)}>
+                  Modifica
+                </Button>
+                <Button variant="secondary" onClick={() => router.push('/planning')}>
+                  Torna al planning
+                </Button>
+              </div>
+            </>
           )}
         </Card>
       </div>
