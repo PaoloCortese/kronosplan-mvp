@@ -32,9 +32,10 @@ export default function OnboardingPage() {
       const profile = await getAgencyProfile(session.user.id)
 
       // Se arrivo da /checkin (link "Profilo agenzia"), permetto modifica
-      const fromCheckin = typeof window !== 'undefined' && document.referrer.includes('/checkin')
+      const urlParams = new URLSearchParams(window.location.search)
+      const isEditMode = urlParams.get('edit') === 'true'
 
-      if (profile && !fromCheckin) {
+      if (profile && !isEditMode) {
         router.push('/checkin')
         return
       }

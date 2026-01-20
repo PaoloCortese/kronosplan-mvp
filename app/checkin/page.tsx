@@ -118,8 +118,8 @@ export default function CheckinPage() {
         <div className="mt-4 text-center">
           <button
             type="button"
-            onClick={() => router.push('/onboarding')}
-            className="text-xs text-gray-400 hover:text-gray-600"
+            onClick={() => router.push('/onboarding?edit=true')}
+            className="px-3 py-2 rounded-lg border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 text-sm transition-all"
           >
             Profilo agenzia
           </button>
