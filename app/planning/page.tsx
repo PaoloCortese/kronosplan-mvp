@@ -275,9 +275,14 @@ export default function PlanningPage() {
           <h1 className="text-2xl font-semibold text-[#1a365d]">Planning</h1>
           <button
             onClick={() => router.push('/rotta')}
-            className="text-sm text-gray-400 hover:text-[#1a365d] transition-colors"
+            className="p-1.5 text-gray-400 border border-gray-200 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"
+            title="Bussola"
           >
-            La tua rotta
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <circle cx="12" cy="12" r="10" />
+              <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" opacity="0.3" />
+              <path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36z" />
+            </svg>
           </button>
         </div>
 
