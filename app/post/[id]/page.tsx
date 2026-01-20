@@ -10,12 +10,13 @@ import { getSession, getOrCreateUserAgency } from '@/lib/auth'
 export default function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
   const [postCopy, setPostCopy] = useState('')
-  const [editedCopy, setEditedCopy] = useState('')
+  const [originalCopy, setOriginalCopy] = useState('')
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
   const [agencyId, setAgencyId] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
       if (data && data.copy) {
         setPostCopy(data.copy)
-        setEditedCopy(data.copy)
+        setOriginalCopy(data.copy)
         setLoading(false)
       } else {
         setNotFound(true)
@@ -60,21 +61,38 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   }, [notFound, router])
 
   const handleSave = async () => {
+    if (!agencyId) return
     setSaving(true)
+
     await supabase
       .from('posts')
-      .update({ copy: editedCopy })
+      .update({ copy: postCopy })
       .eq('id', unwrappedParams.id)
       .eq('agency_id', agencyId)
 
-    setPostCopy(editedCopy)
-    setIsEditing(false)
+    setOriginalCopy(postCopy)
     setSaving(false)
+    setIsEditing(false)
   }
 
   const handleCancel = () => {
-    setEditedCopy(postCopy)
+    setPostCopy(originalCopy)
     setIsEditing(false)
+  }
+
+  const handleDelete = async () => {
+    if (!agencyId) return
+    if (!confirm('Sei sicuro di voler eliminare questo post?')) return
+
+    setDeleting(true)
+
+    await supabase
+      .from('posts')
+      .delete()
+      .eq('id', unwrappedParams.id)
+      .eq('agency_id', agencyId)
+
+    router.push('/planning')
   }
 
   if (loading) {
@@ -95,13 +113,13 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         <div className="w-full max-w-2xl">
           <Card>
             <p className="text-sm text-gray-700 mb-6">
-              Il post non è disponibile. Torna al calendario.
+              Il post non è disponibile. Torna al planning.
             </p>
             <Button
               variant="primary"
               onClick={() => router.push('/planning')}
             >
-              Torna al calendario
+              Torna al planning
             </Button>
           </Card>
         </div>
@@ -109,46 +127,66 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     )
   }
 
-  // Visualizzazione post
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <Card>
-          {isEditing ? (
-            <>
-              <p className="text-sm text-gray-500 mb-4">Modifica il post</p>
+          <div className="mb-6">
+            {isEditing ? (
               <textarea
-                value={editedCopy}
-                onChange={(e) => setEditedCopy(e.target.value)}
-                className="w-full h-48 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:border-[#1a365d] resize-none mb-6"
+                value={postCopy}
+                onChange={(e) => setPostCopy(e.target.value)}
+                className="w-full h-48 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d]/20 focus:border-[#1a365d] resize-none"
               />
-              <div className="flex gap-3">
-                <Button variant="primary" onClick={handleSave} disabled={saving}>
+            ) : (
+              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
+{postCopy}
+              </pre>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {isEditing ? (
+              <>
+                <Button
+                  variant="primary"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
                   {saving ? 'Salvataggio...' : 'Salva'}
                 </Button>
-                <Button variant="secondary" onClick={handleCancel}>
+                <Button
+                  variant="secondary"
+                  onClick={handleCancel}
+                  disabled={saving}
+                >
                   Annulla
                 </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="mb-6">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
-{postCopy}
-                </pre>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button variant="primary" onClick={() => setIsEditing(true)}>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="primary"
+                  onClick={() => setIsEditing(true)}
+                >
                   Modifica
                 </Button>
-                <Button variant="secondary" onClick={() => router.push('/planning')}>
+                <Button
+                  variant="secondary"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Eliminazione...' : 'Elimina'}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => router.push('/planning')}
+                >
                   Torna al planning
                 </Button>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </Card>
       </div>
     </main>
