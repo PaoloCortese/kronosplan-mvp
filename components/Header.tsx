@@ -17,7 +17,7 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-100">
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-4">
           <a
             href="/checkin"
             className={`text-sm font-medium transition-colors ${
