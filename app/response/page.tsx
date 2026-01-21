@@ -44,16 +44,22 @@ function ResponseContent() {
       return
     }
 
-    // Get agency details
-    const { data: agency } = await supabase
-      .from('agencies')
-      .select('name, city')
-      .eq('id', agencyId)
+    // Get agency details from agency_profiles
+    const session2 = await getSession()
+    const { data: profile } = await supabase
+      .from('agency_profiles')
+      .select('agency_name, city_area')
+      .eq('user_id', session2?.user.id)
       .single()
 
-    if (!agency) {
+    if (!profile) {
       setGenerationError(true)
       return
+    }
+
+    const agency = {
+      name: profile.agency_name,
+      city: profile.city_area
     }
 
     // Get current week start
