@@ -69,8 +69,10 @@ export default function HomePage() {
         setError('Email o password non corretti.')
       } else if (message.includes('Email not confirmed')) {
         setError('Conferma la tua email prima di accedere.')
+      } else if (message.includes('User already registered')) {
+        setError('Email già registrata. Prova ad accedere.')
       } else {
-        setError('Qualcosa non ha funzionato. Riprova.')
+        setError(message || 'Qualcosa non ha funzionato. Riprova.')
       }
     }
   }
