@@ -102,14 +102,16 @@ export default function HomePage() {
               placeholder="Password"
               className="mb-2"
             />
-            {mode === 'register' && (
-              <p className="text-xs text-gray-400 mb-4">Minimo 6 caratteri</p>
-            )}
-            {mode === 'login' && <div className="mb-4" />}
+            <p className="text-xs text-gray-400 mb-4">Minimo 6 caratteri</p>
             {error && (
               <p className="text-sm text-red-600 mb-4">{error}</p>
             )}
-            <Button type="submit" variant="primary" className="w-full mb-4">
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full mb-4"
+              disabled={mode === 'register' && (!email.includes('@') || password.length < 6)}
+            >
               {mode === 'login' ? 'Accedi' : 'Registrati'}
             </Button>
             <button

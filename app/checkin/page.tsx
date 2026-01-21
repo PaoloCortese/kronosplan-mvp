@@ -77,7 +77,7 @@ export default function CheckinPage() {
         <Card>
           <form onSubmit={handleSubmit}>
             <p className="text-sm text-gray-700 mb-6">
-              Buon lunedì. Qualche novità dalla settimana scorsa?
+              {new Date().getDay() === 1 ? 'Buon lunedì. ' : ''}Qualche novità dalla settimana scorsa?
             </p>
 
             <Input
