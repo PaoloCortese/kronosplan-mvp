@@ -89,6 +89,30 @@ export default function HomePage() {
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card>
+          <div className="flex mb-6 border-b border-gray-200">
+            <button
+              type="button"
+              onClick={() => setMode('login')}
+              className={`flex-1 pb-3 text-sm font-medium transition-colors ${
+                mode === 'login'
+                  ? 'text-[#1a365d] border-b-2 border-[#1a365d]'
+                  : 'text-gray-400'
+              }`}
+            >
+              Accedi
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('register')}
+              className={`flex-1 pb-3 text-sm font-medium transition-colors ${
+                mode === 'register'
+                  ? 'text-[#1a365d] border-b-2 border-[#1a365d]'
+                  : 'text-gray-400'
+              }`}
+            >
+              Registrati
+            </button>
+          </div>
           <form onSubmit={handleSubmit}>
             <Input
               value={email}
@@ -111,18 +135,11 @@ export default function HomePage() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full mb-4"
+              className="w-full"
               disabled={mode === 'register' && (!email.includes('@') || password.length < 6)}
             >
               {mode === 'login' ? 'Accedi' : 'Registrati'}
             </Button>
-            <button
-              type="button"
-              onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
-              {mode === 'login' ? 'Registrati' : 'Accedi'}
-            </button>
           </form>
         </Card>
       </div>
