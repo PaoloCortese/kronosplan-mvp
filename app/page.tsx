@@ -90,18 +90,20 @@ export default function HomePage() {
       <div className="w-full max-w-md">
         <Card>
           <form onSubmit={handleSubmit}>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
             <Input
               value={email}
               onChange={setEmail}
               type="email"
-              placeholder="Email"
+              placeholder="nome@agenzia.it"
               className="mb-4"
             />
+            <label className="block text-sm text-gray-600 mb-1">Password</label>
             <Input
               value={password}
               onChange={setPassword}
               type="password"
-              placeholder="Password"
+              placeholder="••••••"
               className="mb-2"
             />
             <p className="text-xs text-gray-400 mb-4">Minimo 6 caratteri</p>
@@ -116,6 +118,9 @@ export default function HomePage() {
             >
               {mode === 'login' ? 'Accedi' : 'Registrati'}
             </Button>
+            <p className="text-xs text-gray-400 mb-2">
+              {mode === 'login' ? 'Non hai un account?' : 'Hai già un account?'}
+            </p>
             <button
               type="button"
               onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
