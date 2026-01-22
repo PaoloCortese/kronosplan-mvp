@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   title: 'KRONOSPLAN',
   description: 'Al tempo giusto. Il contenuto giusto.',
   viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'KRONOSPLAN',
+  },
 }
 
 export default function RootLayout({
