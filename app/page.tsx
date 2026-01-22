@@ -98,15 +98,13 @@ export default function HomePage() {
               placeholder="nome@agenzia.it"
               className="mb-4"
             />
-            <label className="block text-sm text-gray-600 mb-1">Password</label>
             <Input
               value={password}
               onChange={setPassword}
               type="password"
-              placeholder="••••••"
-              className="mb-2"
+              placeholder="Password (minimo 6 caratteri)"
+              className="mb-4"
             />
-            <p className="text-xs text-gray-400 mb-4">Minimo 6 caratteri</p>
             {error && (
               <p className="text-sm text-red-600 mb-4">{error}</p>
             )}
