@@ -86,3 +86,4 @@ rls-runtime-test.sql
 POST_DEPLOY_HARDENING.md
 manifest.json
 service-worker.js
+docs/
