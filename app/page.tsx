@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
@@ -86,15 +85,6 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
-          <Image
-            src="/logo_completo_trasparente.png"
-            alt="KRONOSPLAN"
-            height={32}
-            width={160}
-            priority
-          />
-        </div>
         <Card>
           <form onSubmit={handleSubmit}>
             <label className="block text-sm text-gray-600 mb-1">Email</label>
