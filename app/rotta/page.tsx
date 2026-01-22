@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
-import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
+import { getAgencyProfile } from '@/lib/agencyProfile'
 
 interface RottaMessage {
   title: string
@@ -27,8 +28,8 @@ export default function RottaPage() {
         return
       }
 
-      const agencyId = await getOrCreateUserAgency()
-      if (!agencyId) {
+      const profile = await getAgencyProfile(session.user.id)
+      if (!profile) {
         router.push('/onboarding')
         return
       }
@@ -40,7 +41,7 @@ export default function RottaPage() {
       const { data: recentPosts } = await supabase
         .from('posts')
         .select('id, status')
-        .eq('agency_id', agencyId)
+        .eq('user_id', session.user.id)
         .gte('created_at', weekStart.toISOString())
 
       const publishedCount = recentPosts?.filter(

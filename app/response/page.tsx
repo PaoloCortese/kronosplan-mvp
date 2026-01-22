@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from 'react'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
-import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { platformIcons } from '@/components/SocialIcons'
 
 const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
@@ -38,22 +38,17 @@ function ResponseContent() {
       return
     }
 
-    const agencyId = await getOrCreateUserAgency()
-    if (!agencyId) {
-      setGenerationError(true)
-      return
-    }
+    const userId = session.user.id
 
     // Get agency details from agency_profiles
-    const session2 = await getSession()
     const { data: profile } = await supabase
       .from('agency_profiles')
       .select('agency_name, city_area')
-      .eq('user_id', session2?.user.id)
+      .eq('user_id', userId)
       .single()
 
     if (!profile) {
-      setGenerationError(true)
+      router.push('/onboarding')
       return
     }
 
@@ -88,11 +83,11 @@ function ResponseContent() {
 
     const { copy } = await response.json()
 
-    // Create new post with generated copy
+    // Create new post with user_id instead of agency_id
     const { data: newPost, error: insertError } = await supabase
       .from('posts')
       .insert({
-        agency_id: agencyId,
+        user_id: userId,
         pillar: 'chi_siamo',
         platform: platform,
         scheduled_date: weekStartStr,
@@ -136,7 +131,7 @@ function ResponseContent() {
       return (
         <Card>
           <p className="text-sm text-gray-700 mb-6">
-            Ok. I post di questa settimana sono nel calendario.
+            Si è verificato un errore nella generazione del post. Controlla la console per i dettagli.
           </p>
           <Button
             variant="primary"

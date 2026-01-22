@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
-import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 
 export default function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
   const [postCopy, setPostCopy] = useState('')
   const [originalCopy, setOriginalCopy] = useState('')
   const [loading, setLoading] = useState(true)
-  const [agencyId, setAgencyId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -27,14 +27,13 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         return
       }
 
-      const aid = await getOrCreateUserAgency()
-      setAgencyId(aid)
+      setUserId(session.user.id)
 
       const { data } = await supabase
         .from('posts')
         .select('copy')
         .eq('id', unwrappedParams.id)
-        .eq('agency_id', aid)
+        .eq('user_id', session.user.id)
         .single()
 
       if (data && data.copy) {
@@ -61,14 +60,14 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   }, [notFound, router])
 
   const handleSave = async () => {
-    if (!agencyId) return
+    if (!userId) return
     setSaving(true)
 
     await supabase
       .from('posts')
       .update({ copy: postCopy })
       .eq('id', unwrappedParams.id)
-      .eq('agency_id', agencyId)
+      .eq('user_id', userId)
 
     setOriginalCopy(postCopy)
     setSaving(false)
@@ -81,7 +80,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   }
 
   const handleDelete = async () => {
-    if (!agencyId) return
+    if (!userId) return
     if (!confirm('Sei sicuro di voler eliminare questo post?')) return
 
     setDeleting(true)
@@ -90,7 +89,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
       .from('posts')
       .delete()
       .eq('id', unwrappedParams.id)
-      .eq('agency_id', agencyId)
+      .eq('user_id', userId)
 
     router.push('/planning')
   }

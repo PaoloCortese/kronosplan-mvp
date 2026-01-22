@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import { supabase } from '@/lib/supabaseClient'
-import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { getAgencyProfile, hasPillars, AgencyProfile } from '@/lib/agencyProfile'
 import { platformIcons } from '@/components/SocialIcons'
 
@@ -64,7 +64,7 @@ export default function PlanningPage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [replicatingId, setReplicatingId] = useState<string | null>(null)
-  const [agencyId, setAgencyId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [profile, setProfile] = useState<AgencyProfile | null>(null)
   const router = useRouter()
 
@@ -82,15 +82,12 @@ export default function PlanningPage() {
         return
       }
       setProfile(userProfile)
-
-      const aid = await getOrCreateUserAgency()
-      if (!aid) return
-      setAgencyId(aid)
+      setUserId(session.user.id)
 
       const { data } = await supabase
         .from('posts')
         .select('id, pillar, platform, scheduled_date, created_at, status, copy, copied_at')
-        .eq('agency_id', aid)
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
 
       if (data) {
@@ -119,27 +116,16 @@ export default function PlanningPage() {
   }
 
   const handleReplicate = async (post: Post, targetPlatform: string) => {
-    if (!agencyId) return
+    if (!userId || !profile) return
     setReplicatingId(post.id)
-
-    const { data: agency } = await supabase
-      .from('agencies')
-      .select('name, city')
-      .eq('id', agencyId)
-      .single()
-
-    if (!agency) {
-      setReplicatingId(null)
-      return
-    }
 
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         checkinResponse: post.copy,
-        agencyName: agency.name,
-        agencyCity: agency.city,
+        agencyName: profile.agency_name,
+        agencyCity: profile.city_area,
         pillar: post.pillar,
         platform: targetPlatform
       })
@@ -155,7 +141,7 @@ export default function PlanningPage() {
     const { data: newPost } = await supabase
       .from('posts')
       .insert({
-        agency_id: agencyId,
+        user_id: userId,
         pillar: post.pillar,
         platform: targetPlatform,
         scheduled_date: post.scheduledDate,
@@ -232,14 +218,14 @@ export default function PlanningPage() {
   }
 
   const handleDelete = async (post: Post) => {
-    if (!agencyId) return
+    if (!userId) return
     if (!confirm('Sei sicuro di voler eliminare questo post?')) return
 
     await supabase
       .from('posts')
       .delete()
       .eq('id', post.id)
-      .eq('agency_id', agencyId)
+      .eq('user_id', userId)
 
     setPosts(prev => prev.filter(p => p.id !== post.id))
   }

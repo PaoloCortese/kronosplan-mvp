@@ -6,7 +6,7 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
 import { supabase } from '@/lib/supabaseClient'
-import { getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { getAgencyProfile } from '@/lib/agencyProfile'
 import { platformIconsExtended } from '@/components/SocialIcons'
 
@@ -15,7 +15,7 @@ const platforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
 export default function CheckinPage() {
   const [response, setResponse] = useState('')
   const [selectedPlatform, setSelectedPlatform] = useState('facebook')
-  const [agencyId, setAgencyId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -33,8 +33,7 @@ export default function CheckinPage() {
         return
       }
 
-      const aid = await getOrCreateUserAgency()
-      setAgencyId(aid)
+      setUserId(session.user.id)
       setLoading(false)
     }
     checkAuth()
@@ -42,7 +41,7 @@ export default function CheckinPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!agencyId) return
+    if (!userId) return
 
     const hasNews = response.trim().length > 0 &&
                     !response.toLowerCase().match(/^(niente|nulla|no|nothing)\.?$/i)
@@ -51,7 +50,7 @@ export default function CheckinPage() {
     const weekStart = new Date(today.setDate(today.getDate() - today.getDay() + 1))
 
     await supabase.from('checkins').insert({
-      agency_id: agencyId,
+      user_id: userId,
       week_start: weekStart.toISOString().split('T')[0],
       response: response.trim() || null
     })
