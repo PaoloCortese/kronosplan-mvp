@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/Card'
 import Button from '@/components/Button'
 import Input from '@/components/Input'
-import { signIn, signUp, getSession, getOrCreateUserAgency } from '@/lib/auth'
+import { signIn, signUp, getSession } from '@/lib/auth'
 import { getAgencyProfile } from '@/lib/agencyProfile'
 
 export default function HomePage() {
@@ -20,7 +20,6 @@ export default function HomePage() {
     async function checkAuth() {
       const session = await getSession()
       if (session) {
-        await getOrCreateUserAgency()
         const profile = await getAgencyProfile(session.user.id)
         if (profile) {
           router.push('/checkin')
@@ -48,7 +47,6 @@ export default function HomePage() {
         await signIn(email, password)
         const session = await getSession()
         if (session) {
-          await getOrCreateUserAgency()
           const profile = await getAgencyProfile(session.user.id)
           if (profile) {
             router.push('/checkin')
@@ -59,7 +57,6 @@ export default function HomePage() {
       } else {
         const result = await signUp(email, password)
         if (result.user) {
-          await getOrCreateUserAgency()
           router.push('/onboarding')
         }
       }

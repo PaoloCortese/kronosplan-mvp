@@ -21,38 +21,3 @@ export async function getSession() {
   const { data: { session } } = await supabase.auth.getSession()
   return session
 }
-
-export async function getOrCreateUserAgency() {
-  const session = await getSession()
-  if (!session) return null
-
-  const userId = session.user.id
-
-  // Verifica se esiste record users
-  const { data: existingUser } = await supabase
-    .from('users')
-    .select('agency_id')
-    .eq('id', userId)
-    .single()
-
-  if (existingUser) {
-    return existingUser.agency_id
-  }
-
-  // Non esiste: crea agency di default e record users
-  const { data: newAgency } = await supabase
-    .from('agencies')
-    .insert({ name: 'Agenzia', city: 'Milano' })
-    .select()
-    .single()
-
-  if (!newAgency) return null
-
-  await supabase.from('users').insert({
-    id: userId,
-    agency_id: newAgency.id,
-    email: session.user.email
-  })
-
-  return newAgency.id
-}

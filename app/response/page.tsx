@@ -83,7 +83,6 @@ function ResponseContent() {
 
     const { copy } = await response.json()
 
-    // Create new post with user_id instead of agency_id
     const { data: newPost, error: insertError } = await supabase
       .from('posts')
       .insert({
