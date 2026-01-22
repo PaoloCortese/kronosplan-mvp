@@ -92,7 +92,7 @@ export default function RottaPage() {
   const toneStyles = {
     positive: {
       cardBg: 'bg-emerald-50',
-      titleColor: 'text-emerald-700'
+      titleColor: 'text-[#1a365d]'
     },
     neutral: {
       cardBg: 'bg-blue-50',
@@ -100,7 +100,7 @@ export default function RottaPage() {
     },
     invite: {
       cardBg: 'bg-orange-50',
-      titleColor: 'text-orange-700'
+      titleColor: 'text-[#1a365d]'
     }
   }
 
