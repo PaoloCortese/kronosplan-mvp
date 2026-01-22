@@ -90,8 +90,8 @@ export default function HomePage() {
           <Image
             src="/logo_completo_navy.png"
             alt="KRONOSPLAN"
-            height={32}
-            width={160}
+            height={40}
+            width={200}
             priority
           />
         </div>
