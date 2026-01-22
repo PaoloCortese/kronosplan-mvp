@@ -85,11 +85,15 @@ export default function PlanningPage() {
       setProfile(userProfile)
       setUserId(session.user.id)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('posts')
-        .select('id, pillar, platform, scheduled_date, created_at, status, copy, copied_at, wa_shared_at')
+        .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching posts:', error)
+      }
 
       if (data) {
         const formattedPosts: Post[] = data
