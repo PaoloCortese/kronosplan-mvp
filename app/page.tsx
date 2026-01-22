@@ -85,8 +85,8 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="mb-6 flex justify-center">
-          <img src="/logo.png" alt="KRONOSPLAN" className="h-8 w-auto" />
+        <div className="mb-8 flex justify-center">
+          <img src="/logo_completo_2.png" alt="KRONOSPLAN" className="h-16 w-auto max-w-[280px]" />
         </div>
         <Card>
           <form onSubmit={handleSubmit}>
