@@ -73,9 +73,6 @@ export default function CheckinPage() {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        <div className="mb-10 flex justify-center">
-          <img src="/logo_completo_2.png" alt="KRONOSPLAN" className="h-40 w-auto" />
-        </div>
         <Card>
           <form onSubmit={handleSubmit}>
             <p className="text-sm text-gray-700 mb-6">
