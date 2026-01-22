@@ -1,7 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk'
 
+if (!process.env.ANTHROPIC_API_KEY) {
+  console.error('[AI] ERRORE: ANTHROPIC_API_KEY non configurata!')
+}
+
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
+  apiKey: process.env.ANTHROPIC_API_KEY || '',
 })
 
 const platformInstructions: Record<string, string> = {
@@ -43,30 +47,39 @@ export async function generatePostCopy(
   pillar: string,
   platform: string = 'facebook'
 ): Promise<string> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY non configurata nelle variabili d\'ambiente')
+  }
+
   const instructions = platformInstructions[platform] || platformInstructions.facebook
 
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 500,
-    temperature: 0.3,
-    messages: [
-      {
-        role: 'user',
-        content: `Sei un copywriter per agenzie immobiliari.
+  try {
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 500,
+      temperature: 0.3,
+      messages: [
+        {
+          role: 'user',
+          content: `Sei un copywriter per agenzie immobiliari.
 
 Agenzia: ${agencyName}, ${agencyCity}
 Pillar: ${pillar}
 Novità settimana: ${checkinResponse || 'nessuna'}
 
 ${instructions}`
-      }
-    ]
-  })
+        }
+      ]
+    })
 
-  const textContent = message.content.find((block) => block.type === 'text')
-  if (!textContent || textContent.type !== 'text') {
-    throw new Error('No text content in AI response')
+    const textContent = message.content.find((block) => block.type === 'text')
+    if (!textContent || textContent.type !== 'text') {
+      throw new Error('No text content in AI response')
+    }
+
+    return textContent.text.trim()
+  } catch (error) {
+    console.error('[AI] Errore chiamata Anthropic:', error)
+    throw error
   }
-
-  return textContent.text.trim()
 }
