@@ -255,7 +255,6 @@ export default function PlanningPage() {
     return (
       <main className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-4xl mx-auto py-8">
-          <h1 className="text-2xl font-semibold text-[#1a365d] mb-8">Planning</h1>
           <p className="text-sm text-gray-700">...</p>
         </div>
       </main>
@@ -265,8 +264,7 @@ export default function PlanningPage() {
   return (
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold text-[#1a365d]">Planning</h1>
+        <div className="flex justify-end mb-8">
           <button
             onClick={() => router.push('/rotta')}
             className="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 border border-gray-300 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"
