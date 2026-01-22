@@ -42,7 +42,8 @@ Downloads/
 Movies/
 Music/
 Pictures/
-Public/
+/Public/
+!/public/
 .Trash/
 .cache/
 .local/
