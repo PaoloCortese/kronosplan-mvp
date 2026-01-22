@@ -69,6 +69,14 @@ export default function PlanningPage() {
   const [waSharedPosts, setWaSharedPosts] = useState<Set<string>>(new Set())
   const router = useRouter()
 
+  // Carica waSharedPosts da localStorage al mount
+  useEffect(() => {
+    const saved = localStorage.getItem('waSharedPosts')
+    if (saved) {
+      setWaSharedPosts(new Set(JSON.parse(saved)))
+    }
+  }, [])
+
   useEffect(() => {
     async function fetchPosts() {
       const session = await getSession()
@@ -216,7 +224,11 @@ export default function PlanningPage() {
   const handleWhatsApp = (post: Post) => {
     const text = encodeURIComponent(post.copy)
     window.open(`https://wa.me/?text=${text}`, '_blank')
-    setWaSharedPosts(prev => new Set(prev).add(post.id))
+    setWaSharedPosts(prev => {
+      const newSet = new Set(prev).add(post.id)
+      localStorage.setItem('waSharedPosts', JSON.stringify([...newSet]))
+      return newSet
+    })
   }
 
   const handleDelete = async (post: Post) => {
@@ -363,17 +375,15 @@ export default function PlanningPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {/* Copia - pulsante con testo */}
-                      {!isCopied && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleCopy(post)
-                          }}
-                          className="px-3 py-1 text-xs text-[#1a365d] border border-[#1a365d] rounded hover:bg-[#1a365d]/5 transition-colors"
-                        >
-                          Copia
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleCopy(post)
+                        }}
+                        className="px-3 py-1 text-xs text-[#1a365d] border border-[#1a365d] rounded hover:bg-[#1a365d]/5 transition-colors"
+                      >
+                        Copia
+                      </button>
                       {/* WhatsApp */}
                       <button
                         onClick={(e) => {
