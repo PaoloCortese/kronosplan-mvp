@@ -64,14 +64,14 @@ export default function CheckinPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center p-4">
+      <main className="min-h-screen bg-white flex items-start justify-center p-4 pt-20">
         <Card><p className="text-sm text-gray-700">...</p></Card>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center p-4">
+    <main className="min-h-screen bg-white flex items-start justify-center p-4 pt-20">
       <div className="w-full max-w-2xl">
         <Card>
           <form onSubmit={handleSubmit}>
@@ -99,7 +99,7 @@ export default function CheckinPage() {
                     className={`px-3 py-2 rounded-lg border transition-all ${
                       selectedPlatform === p
                         ? 'border-[#1a365d] bg-[#1a365d]/5 text-[#1a365d]'
-                        : 'border-gray-200 text-gray-400 hover:border-gray-300'
+                        : 'border-gray-300 text-gray-600 hover:border-gray-400'
                     }`}
                   >
                     <IconComponent />
@@ -118,7 +118,7 @@ export default function CheckinPage() {
           <button
             type="button"
             onClick={() => router.push('/profile')}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 text-sm transition-all"
+            className="px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-700 text-sm transition-all"
           >
             Profilo agenzia
           </button>
