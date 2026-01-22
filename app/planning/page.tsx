@@ -224,10 +224,14 @@ export default function PlanningPage() {
     window.open(`https://wa.me/?text=${text}`, '_blank')
 
     const now = new Date().toISOString()
-    await supabase
-      .from('posts')
-      .update({ wa_shared_at: now })
-      .eq('id', post.id)
+    try {
+      await supabase
+        .from('posts')
+        .update({ wa_shared_at: now })
+        .eq('id', post.id)
+    } catch (e) {
+      console.log('wa_shared_at column may not exist yet')
+    }
 
     setPosts(prev => prev.map(p =>
       p.id === post.id ? { ...p, waSharedAt: now } : p
