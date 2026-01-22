@@ -154,7 +154,7 @@ function ResponseContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-400">Copia su</span>
-              {allPlatforms.map(p => {
+              {allPlatforms.filter(p => p !== platform).map(p => {
                 const IconComponent = platformIcons[p]
                 return (
                   <button
