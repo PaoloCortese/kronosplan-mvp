@@ -387,7 +387,11 @@ export default function PlanningPage() {
                           e.stopPropagation()
                           handleCopy(post)
                         }}
-                        className="px-3 py-1 text-xs text-[#1a365d] border border-[#1a365d] rounded hover:bg-[#1a365d]/5 transition-colors"
+                        className={`px-3 py-1 text-xs rounded transition-colors ${
+                          isCopied
+                            ? 'text-blue-500 border-2 border-blue-500 bg-blue-50'
+                            : 'text-[#1a365d] border border-[#1a365d] hover:bg-[#1a365d]/5'
+                        }`}
                       >
                         Copia
                       </button>
@@ -397,7 +401,11 @@ export default function PlanningPage() {
                           e.stopPropagation()
                           handleWhatsApp(post)
                         }}
-                        className="p-1.5 text-gray-400 hover:text-[#25D366] hover:bg-green-50 rounded transition-colors flex items-center gap-1 min-w-[52px] justify-start"
+                        className={`p-1.5 rounded transition-colors flex items-center gap-1 min-w-[52px] justify-start ${
+                          post.waSharedAt
+                            ? 'text-[#25D366] bg-green-50'
+                            : 'text-gray-400 hover:text-[#25D366] hover:bg-green-50'
+                        }`}
                         title="Condividi su WhatsApp"
                       >
                         <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
