@@ -18,7 +18,7 @@ export default function Header() {
     <header className="bg-kronos-navy safe-area-top">
       <div className="max-w-4xl mx-auto px-6 sm:px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Image src="/logo-white.png" alt="KRONOSPLAN" height={28} width={58} priority />
+          <Image src="/logo_completo_bianco.png" alt="KRONOSPLAN" height={28} width={140} priority />
           <nav className="flex items-center gap-4">
             <a
               href="/checkin"
