@@ -93,6 +93,7 @@ export default function HomePage() {
             height={40}
             width={200}
             priority
+            unoptimized
           />
         </div>
         <Card>
