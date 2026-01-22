@@ -88,7 +88,7 @@ export default function HomePage() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Image
-            src="/logo_completo_2.png"
+            src="/logo_completo_trasparente.png"
             alt="KRONOSPLAN"
             height={32}
             width={160}
