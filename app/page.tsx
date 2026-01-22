@@ -85,6 +85,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="mb-6 flex justify-center">
+          <img src="/logo.png" alt="KRONOSPLAN" className="h-8 w-auto" />
+        </div>
         <Card>
           <form onSubmit={handleSubmit}>
             <label className="block text-sm text-gray-600 mb-1">Email</label>
