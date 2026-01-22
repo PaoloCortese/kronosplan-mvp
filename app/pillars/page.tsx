@@ -127,7 +127,7 @@ export default function PillarsPage() {
     <main className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card>
-          <p className="text-xs text-gray-400 mb-4">Passo {step} di 3</p>
+          <p className="text-xs text-gray-500 mb-4">Passo {step} di 3</p>
 
           {step === 1 && (
             <>

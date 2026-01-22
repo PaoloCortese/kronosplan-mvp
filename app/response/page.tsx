@@ -153,7 +153,7 @@ function ResponseContent() {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-400">Copia su</span>
+              <span className="text-xs text-gray-500">Copia su</span>
               {allPlatforms.filter(p => p !== platform).map(p => {
                 const IconComponent = platformIcons[p]
                 return (
@@ -163,7 +163,7 @@ function ResponseContent() {
                     className={`p-1.5 rounded transition-colors ${
                       copiedPlatform === p
                         ? 'text-blue-500 bg-blue-50'
-                        : 'text-gray-400 hover:text-[#1a365d] hover:bg-gray-50'
+                        : 'text-gray-600 hover:text-[#1a365d] hover:bg-gray-50'
                     }`}
                     title={p.charAt(0).toUpperCase() + p.slice(1)}
                   >

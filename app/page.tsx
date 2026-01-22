@@ -113,7 +113,7 @@ export default function HomePage() {
             >
               {mode === 'login' ? 'Accedi' : 'Registrati'}
             </Button>
-            <p className="text-xs text-gray-400 mb-2">
+            <p className="text-xs text-gray-500 mb-2">
               {mode === 'login' ? 'Non hai un account?' : 'Hai già un account?'}
             </p>
             <button

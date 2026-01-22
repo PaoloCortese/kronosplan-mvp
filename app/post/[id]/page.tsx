@@ -135,7 +135,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
               <textarea
                 value={postCopy}
                 onChange={(e) => setPostCopy(e.target.value)}
-                className="w-full h-48 p-3 text-sm text-gray-700 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d]/20 focus:border-[#1a365d] resize-none"
+                className="w-full h-48 p-3 text-sm text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d]/20 focus:border-[#1a365d] resize-none"
               />
             ) : (
               <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">

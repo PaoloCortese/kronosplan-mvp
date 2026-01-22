@@ -147,7 +147,7 @@ export default function RottaPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-6 text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">La tua rotta</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wide">La tua rotta</p>
         </div>
 
         {/* Card principale */}
@@ -184,7 +184,7 @@ export default function RottaPage() {
         </div>
 
         {/* Footer soft */}
-        <p className="text-center text-xs text-gray-400 mt-8">
+        <p className="text-center text-xs text-gray-500 mt-8">
           La costanza costruisce fiducia.
         </p>
       </div>

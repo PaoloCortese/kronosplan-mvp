@@ -131,10 +131,10 @@ export default function ProfilePage() {
           </div>
 
           {/* Separatore */}
-          <div className="border-t border-gray-100 my-6" />
+          <div className="border-t border-gray-300 my-6" />
 
           {/* Pillar */}
-          <p className="text-xs text-gray-400 mb-4">PILLAR (opzionali, migliorano i contenuti)</p>
+          <p className="text-xs text-gray-500 mb-4">PILLAR (opzionali, migliorano i contenuti)</p>
 
           <div className="mb-4">
             <p className="text-xs text-gray-500 mb-2">Chi siamo</p>

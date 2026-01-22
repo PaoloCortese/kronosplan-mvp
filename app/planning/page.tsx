@@ -41,7 +41,7 @@ function CheckIcon({ copied }: { copied: boolean }) {
       height="14"
       viewBox="0 0 20 14"
       fill="none"
-      className={copied ? 'text-blue-500' : 'text-gray-300'}
+      className={copied ? 'text-blue-500' : 'text-gray-600'}
     >
       <path
         d="M1 7L5 11L13 3"
@@ -269,7 +269,7 @@ export default function PlanningPage() {
           <h1 className="text-2xl font-semibold text-[#1a365d]">Planning</h1>
           <button
             onClick={() => router.push('/rotta')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 border border-gray-200 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 border border-gray-300 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"
             title="Bussola"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -320,9 +320,9 @@ export default function PlanningPage() {
                     {(() => {
                       const IconComponent = platformIcons[post.platform as keyof typeof platformIcons]
                       return IconComponent ? (
-                        <IconComponent className="w-4 h-4 text-gray-400" />
+                        <IconComponent className="w-4 h-4 text-gray-600" />
                       ) : (
-                        <span className="text-xs text-gray-400">{post.platform}</span>
+                        <span className="text-xs text-gray-500">{post.platform}</span>
                       )
                     })()}
                   </div>
@@ -342,7 +342,7 @@ export default function PlanningPage() {
                     <div className="flex-shrink-0 ml-2 flex flex-col items-center">
                       <CheckIcon copied={true} />
                       {post.copiedAt && (
-                        <span className="text-[10px] text-gray-400 mt-0.5">
+                        <span className="text-[10px] text-gray-500 mt-0.5">
                           {formatDateTime(post.copiedAt)}
                         </span>
                       )}
@@ -351,12 +351,12 @@ export default function PlanningPage() {
                 </div>
 
                 {/* Azioni: Replica + Copia + WhatsApp + Cestino */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                <div className="mt-3 pt-3 border-t border-gray-300">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {availablePlatforms.length > 0 && (
                         <>
-                          <span className="text-xs text-gray-400">Replica su</span>
+                          <span className="text-xs text-gray-500">Replica su</span>
                           {isReplicating ? (
                             <span className="text-xs text-gray-500">...</span>
                           ) : (
@@ -369,7 +369,7 @@ export default function PlanningPage() {
                                     e.stopPropagation()
                                     handleReplicate(post, p)
                                   }}
-                                  className="p-1.5 text-gray-400 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
+                                  className="p-1.5 text-gray-600 hover:text-[#1a365d] hover:bg-gray-50 rounded transition-colors"
                                   title={p.charAt(0).toUpperCase() + p.slice(1)}
                                 >
                                   <IconComponent className="w-4 h-4" />
@@ -404,7 +404,7 @@ export default function PlanningPage() {
                         className={`p-1.5 rounded transition-colors relative ${
                           post.waSharedAt
                             ? 'text-[#25D366] bg-green-50'
-                            : 'text-gray-400 hover:text-[#25D366] hover:bg-green-50'
+                            : 'text-gray-600 hover:text-[#25D366] hover:bg-green-50'
                         }`}
                         title="Condividi su WhatsApp"
                       >

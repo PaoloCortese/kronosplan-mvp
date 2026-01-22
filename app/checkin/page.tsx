@@ -118,7 +118,7 @@ export default function CheckinPage() {
           <button
             type="button"
             onClick={() => router.push('/profile')}
-            className="px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-700 text-sm transition-all"
+            className="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:border-gray-300 hover:text-gray-700 text-sm transition-all"
           >
             Profilo agenzia
           </button>
