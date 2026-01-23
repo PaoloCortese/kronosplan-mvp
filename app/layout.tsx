@@ -21,7 +21,11 @@ export const metadata: Metadata = {
       { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon-120x120.png?v=2', sizes: '120x120', type: 'image/png' },
+      { url: '/apple-touch-icon-152x152.png?v=2', sizes: '152x152', type: 'image/png' },
+      { url: '/apple-touch-icon-167x167.png?v=2', sizes: '167x167', type: 'image/png' },
+      { url: '/apple-touch-icon-180x180.png?v=2', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
   },
 }
