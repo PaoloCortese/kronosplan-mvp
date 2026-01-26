@@ -6,10 +6,6 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession } from '@/lib/auth'
-import { platformIcons } from '@/components/SocialIcons'
-
-const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
-
 function ResponseContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -20,8 +16,6 @@ function ResponseContent() {
   const [postId, setPostId] = useState<string | null>(null)
   const [postCopy, setPostCopy] = useState<string | null>(null)
   const [generationError, setGenerationError] = useState(false)
-  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null)
-  const [copyError, setCopyError] = useState(false)
 
   useEffect(() => {
     if (type === 'novita' && text && !postId && !generating) {
@@ -107,24 +101,6 @@ function ResponseContent() {
     setGenerating(false)
   }
 
-  const handleCopy = async (targetPlatform: string) => {
-    if (!postCopy || !postId) return
-    setCopyError(false)
-    try {
-      await navigator.clipboard.writeText(postCopy)
-
-      // Aggiorna stato post a 'copied' con timestamp
-      await supabase
-        .from('posts')
-        .update({ status: 'copied', copied_at: new Date().toISOString() })
-        .eq('id', postId)
-
-      setCopiedPlatform(targetPlatform)
-    } catch {
-      setCopyError(true)
-    }
-  }
-
   if (type === 'novita') {
     if (generationError) {
       return (
@@ -151,27 +127,7 @@ function ResponseContent() {
             </pre>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500">Copia su</span>
-              {allPlatforms.filter(p => p !== platform).map(p => {
-                const IconComponent = platformIcons[p]
-                return (
-                  <button
-                    key={p}
-                    onClick={() => handleCopy(p)}
-                    className={`p-1.5 rounded transition-colors ${
-                      copiedPlatform === p
-                        ? 'text-blue-500 bg-blue-50'
-                        : 'text-gray-600 hover:text-[#1a365d] hover:bg-gray-50'
-                    }`}
-                    title={p.charAt(0).toUpperCase() + p.slice(1)}
-                  >
-                    <IconComponent className="w-4 h-4" />
-                  </button>
-                )
-              })}
-            </div>
+          <div className="flex justify-end">
             <button
               onClick={() => window.location.href = '/planning'}
               className="text-xs text-[#1a365d] hover:underline"
@@ -179,9 +135,6 @@ function ResponseContent() {
               Vai al planning →
             </button>
           </div>
-          {copyError && (
-            <p className="text-sm text-red-600 mt-4">Non è stato possibile copiare. Riprova.</p>
-          )}
         </Card>
       )
     }
