@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Card from '@/components/Card'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession } from '@/lib/auth'
@@ -61,13 +61,30 @@ function CheckIcon({ copied }: { copied: boolean }) {
   )
 }
 
-export default function PlanningPage() {
+function PlanningContent() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [replicatingId, setReplicatingId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const [profile, setProfile] = useState<AgencyProfile | null>(null)
+  const [highlightId, setHighlightId] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const postRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  // Gestisce lo scroll al post evidenziato dal calendario
+  useEffect(() => {
+    const highlight = searchParams.get('highlight')
+    if (highlight && !loading && posts.length > 0) {
+      setHighlightId(highlight)
+      const element = postRefs.current[highlight]
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Rimuovi highlight dopo 3 secondi
+        setTimeout(() => setHighlightId(null), 3000)
+      }
+    }
+  }, [searchParams, loading, posts])
 
   useEffect(() => {
     async function fetchPosts() {
@@ -303,8 +320,14 @@ export default function PlanningPage() {
 
             const cardBg = platformColors[post.platform] || ''
 
+            const isHighlighted = highlightId === post.id
+
             return (
-              <Card key={post.id} className={`hover:shadow-md transition-shadow ${cardBg}`}>
+              <div
+                key={post.id}
+                ref={(el) => { postRefs.current[post.id] = el }}
+              >
+                <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''}`}>
                 <div className="flex items-center gap-4">
                   {/* Data */}
                   <div className="w-16 text-center flex-shrink-0">
@@ -426,6 +449,7 @@ export default function PlanningPage() {
                   </div>
                 </div>
               </Card>
+              </div>
             )
           })}
 
@@ -439,5 +463,19 @@ export default function PlanningPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function PlanningPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-4xl mx-auto py-8">
+          <p className="text-sm text-gray-700">...</p>
+        </div>
+      </main>
+    }>
+      <PlanningContent />
+    </Suspense>
   )
 }
