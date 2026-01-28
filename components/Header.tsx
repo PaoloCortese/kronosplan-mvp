@@ -40,6 +40,16 @@ export default function Header() {
             >
               Planning
             </a>
+            <a
+              href="/calendario"
+              className={`text-sm font-medium transition-colors text-white ${
+                pathname === '/calendario'
+                  ? 'opacity-100'
+                  : 'opacity-70 hover:opacity-100'
+              }`}
+            >
+              Calendario
+            </a>
           </nav>
         </div>
 
