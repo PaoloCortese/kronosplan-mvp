@@ -15,7 +15,7 @@ const platformColors: Record<string, string> = {
 interface Post {
   id: string
   platform: string
-  scheduled_date: string
+  copied_at: string
 }
 
 interface CalendarDayProps {

@@ -6,7 +6,7 @@ import CalendarDay from './CalendarDay'
 interface Post {
   id: string
   platform: string
-  scheduled_date: string
+  copied_at: string
 }
 
 interface CalendarGridProps {
@@ -68,7 +68,7 @@ export default function CalendarGrid({ posts, onPostClick }: CalendarGridProps) 
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
     return posts.filter(post => {
-      const postDate = post.scheduled_date?.split('T')[0]
+      const postDate = post.copied_at?.split('T')[0]
       return postDate === dateStr
     })
   }

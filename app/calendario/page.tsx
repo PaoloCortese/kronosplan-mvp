@@ -9,7 +9,7 @@ import CalendarGrid from '@/components/CalendarGrid'
 interface Post {
   id: string
   platform: string
-  scheduled_date: string
+  copied_at: string
 }
 
 export default function CalendarioPage() {
@@ -27,10 +27,11 @@ export default function CalendarioPage() {
 
       const { data, error } = await supabase
         .from('posts')
-        .select('id, platform, scheduled_date')
+        .select('id, platform, copied_at')
         .eq('user_id', session.user.id)
         .eq('status', 'copied')
-        .order('scheduled_date', { ascending: true })
+        .not('copied_at', 'is', null)
+        .order('copied_at', { ascending: true })
 
       if (error) {
         console.error('Error fetching posts:', error)
