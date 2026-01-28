@@ -281,7 +281,22 @@ function PlanningContent() {
   return (
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto py-8">
-        <div className="flex justify-end mb-8">
+        <div className="flex justify-end gap-2 mb-8">
+          <button
+            onClick={() => router.push('/calendario')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 border border-gray-300 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"
+            title="Piano Editoriale"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <rect x="7" y="14" width="3" height="3" fill="currentColor" opacity="0.3" />
+              <rect x="14" y="14" width="3" height="3" fill="currentColor" opacity="0.3" />
+            </svg>
+            <span className="text-xs">Piano Editoriale</span>
+          </button>
           <button
             onClick={() => router.push('/rotta')}
             className="flex items-center gap-1.5 px-3 py-1.5 text-gray-600 border border-gray-300 rounded hover:border-[#1a365d] hover:text-[#1a365d] transition-colors"

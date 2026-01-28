@@ -33,22 +33,12 @@ export default function Header() {
             <a
               href="/planning"
               className={`text-sm font-medium transition-colors text-white ${
-                pathname === '/planning' || pathname.startsWith('/post/')
+                pathname === '/planning' || pathname.startsWith('/post/') || pathname === '/calendario'
                   ? 'opacity-100'
                   : 'opacity-70 hover:opacity-100'
               }`}
             >
               Planning
-            </a>
-            <a
-              href="/calendario"
-              className={`text-sm font-medium transition-colors text-white ${
-                pathname === '/calendario'
-                  ? 'opacity-100'
-                  : 'opacity-70 hover:opacity-100'
-              }`}
-            >
-              Calendario
             </a>
           </nav>
         </div>
