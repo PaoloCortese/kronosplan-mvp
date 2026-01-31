@@ -197,12 +197,6 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
     return acc
   }, {} as Record<string, Post[]>)
 
-  // Conta post della settimana
-  const weekPostCount = dates.reduce((count, date) => {
-    const dateKey = formatDateKey(date)
-    return count + (postsByDate[dateKey]?.length || 0)
-  }, 0)
-
   const handlePostClick = (postId: string) => {
     router.push(`/planning?highlight=${postId}`)
   }
@@ -217,40 +211,31 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
 
   return (
     <div>
-      {/* Controlli navigazione */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setWeekOffset(w => w - 1)}
-            className="p-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
-          <span className="text-sm font-medium text-[#1a365d] min-w-[140px] text-center">
-            {formatWeekRange(dates)}
-          </span>
-          <button
-            onClick={() => setWeekOffset(w => w + 1)}
-            className="p-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <polyline points="9 6 15 12 9 18" />
-            </svg>
-          </button>
+      {/* Navigazione settimana - stile minimal */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => setWeekOffset(w => w - 1)}
+          className="text-xs text-gray-500 hover:text-[#1a365d] hover:underline transition-colors"
+        >
+          ← Precedente
+        </button>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500">{formatWeekRange(dates)}</span>
           {weekOffset !== 0 && (
             <button
               onClick={() => setWeekOffset(0)}
-              className="px-3 py-1.5 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+              className="text-xs text-[#1a365d] hover:underline"
             >
-              Oggi
+              Torna a oggi
             </button>
           )}
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${weekPostCount >= 3 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-          {weekPostCount} post
-        </span>
+        <button
+          onClick={() => setWeekOffset(w => w + 1)}
+          className="text-xs text-gray-500 hover:text-[#1a365d] hover:underline transition-colors"
+        >
+          Successiva →
+        </button>
       </div>
 
       {/* Giorni della settimana */}
