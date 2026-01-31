@@ -155,6 +155,12 @@ function PlanningContent() {
       })
 
       if (activeData) {
+        console.log('[planning] Raw activeData:', activeData.map(p => ({
+          id: p.id,
+          image_thumb_path: p.image_thumb_path,
+          image_expires_at: p.image_expires_at
+        })))
+
         const formattedPosts = activeData
           .filter(post => post.copy)
           .map(formatPost)
@@ -162,19 +168,23 @@ function PlanningContent() {
 
         // Generate signed URLs for thumbnails (60 min expiry)
         const postsWithThumbs = formattedPosts.filter(p => p.imageThumbPath && p.imageExpiresAt && p.imageExpiresAt > now)
+        console.log('[planning] Posts with thumbs:', postsWithThumbs.map(p => ({ id: p.id, path: p.imageThumbPath })))
+
         if (postsWithThumbs.length > 0) {
           const urls: Record<string, string> = {}
           for (const post of postsWithThumbs) {
             if (post.imageThumbPath) {
-              const { data } = await supabase.storage
+              const { data, error } = await supabase.storage
                 .from('post-images')
                 .createSignedUrl(post.imageThumbPath, 3600) // 1 hour
+              console.log('[planning] createSignedUrl for', post.imageThumbPath, ':', data?.signedUrl ? 'SUCCESS' : 'FAILED', error)
               if (data?.signedUrl) {
                 urls[post.id] = data.signedUrl
               }
             }
           }
           setThumbUrls(urls)
+          console.log('[planning] Final thumbUrls:', Object.keys(urls).length, 'entries')
         }
       }
 

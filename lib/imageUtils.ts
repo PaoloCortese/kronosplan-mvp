@@ -26,10 +26,16 @@ function openDB(): Promise<IDBDatabase> {
 
 export async function savePendingThumb(blob: Blob): Promise<void> {
   const db = await openDB()
+  // Convert Blob to ArrayBuffer for better IndexedDB compatibility
+  const arrayBuffer = await blob.arrayBuffer()
+  const data = {
+    buffer: arrayBuffer,
+    type: blob.type
+  }
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite')
     const store = tx.objectStore(STORE_NAME)
-    const request = store.put(blob, THUMB_KEY)
+    const request = store.put(data, THUMB_KEY)
     request.onerror = () => reject(request.error)
     request.onsuccess = () => resolve()
   })
@@ -42,7 +48,22 @@ export async function getPendingThumb(): Promise<Blob | null> {
     const store = tx.objectStore(STORE_NAME)
     const request = store.get(THUMB_KEY)
     request.onerror = () => reject(request.error)
-    request.onsuccess = () => resolve(request.result || null)
+    request.onsuccess = () => {
+      const data = request.result
+      if (!data) {
+        resolve(null)
+        return
+      }
+      // Convert ArrayBuffer back to Blob
+      if (data.buffer && data.type) {
+        resolve(new Blob([data.buffer], { type: data.type }))
+      } else if (data instanceof Blob) {
+        // Legacy support for any existing blobs
+        resolve(data)
+      } else {
+        resolve(null)
+      }
+    }
   })
 }
 

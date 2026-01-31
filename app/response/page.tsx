@@ -90,11 +90,14 @@ function ResponseContent() {
     // Handle photo upload if present
     let imageThumbPath: string | null = null
     if (hasPhoto) {
+      console.log('[photo-upload] hasPhoto=true, attempting upload...')
       try {
         const thumbBlob = await getPendingThumb()
+        console.log('[photo-upload] thumbBlob from IndexedDB:', thumbBlob ? `${thumbBlob.size} bytes` : 'null')
         if (thumbBlob) {
           // Upload to storage: post_thumbs/{user_id}/{post_id}.webp
           const storagePath = `post_thumbs/${userId}/${newPostId}.webp`
+          console.log('[photo-upload] storagePath:', storagePath)
 
           const { error: uploadError } = await supabase.storage
             .from('post-images')
@@ -105,17 +108,22 @@ function ResponseContent() {
 
           if (!uploadError) {
             imageThumbPath = storagePath
+            console.log('[photo-upload] Upload SUCCESS, imageThumbPath:', imageThumbPath)
           } else {
-            console.error('Upload error:', uploadError)
+            console.error('[photo-upload] Upload FAILED:', uploadError)
           }
 
           // Clear pending thumb regardless of success
           await clearPendingThumb()
+        } else {
+          console.warn('[photo-upload] No thumbBlob found in IndexedDB!')
         }
       } catch (error) {
-        console.error('Error handling photo:', error)
+        console.error('[photo-upload] Error handling photo:', error)
         await clearPendingThumb()
       }
+    } else {
+      console.log('[photo-upload] hasPhoto=false, skipping upload')
     }
 
     // Insert post with pre-generated UUID
@@ -134,7 +142,13 @@ function ResponseContent() {
     if (imageThumbPath) {
       insertData.image_thumb_path = imageThumbPath
       insertData.image_expires_at = visibleUntil.toISOString()
+      console.log('[photo-upload] Adding image fields to insert:', {
+        image_thumb_path: imageThumbPath,
+        image_expires_at: visibleUntil.toISOString()
+      })
     }
+
+    console.log('[db-insert] Insert data:', JSON.stringify(insertData, null, 2))
 
     const { data: newPost, error: insertError } = await supabase
       .from('posts')
@@ -143,11 +157,12 @@ function ResponseContent() {
       .single()
 
     if (insertError || !newPost) {
-      console.error('Insert error:', insertError)
+      console.error('[db-insert] Insert FAILED:', insertError)
       setGenerationError(true)
       setGenerating(false)
       return
     }
+    console.log('[db-insert] Insert SUCCESS, post id:', newPost.id)
 
     setPostId(newPost.id)
     setPostCopy(newPost.copy)
