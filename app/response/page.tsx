@@ -6,12 +6,15 @@ import Card from '@/components/Card'
 import Button from '@/components/Button'
 import { supabase } from '@/lib/supabaseClient'
 import { getSession } from '@/lib/auth'
+import { getPendingThumb, clearPendingThumb, generateUUID } from '@/lib/imageUtils'
+
 function ResponseContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const type = searchParams.get('type')
   const text = searchParams.get('text')
   const platform = searchParams.get('platform') || 'facebook'
+  const hasPhoto = searchParams.get('photo') === '1'
   const [generating, setGenerating] = useState(false)
   const [postId, setPostId] = useState<string | null>(null)
   const [postCopy, setPostCopy] = useState<string | null>(null)
@@ -81,21 +84,66 @@ function ResponseContent() {
     const visibleUntil = new Date()
     visibleUntil.setDate(visibleUntil.getDate() + 60)
 
+    // Generate UUID for post_id (needed before upload)
+    const newPostId = generateUUID()
+
+    // Handle photo upload if present
+    let imageThumbPath: string | null = null
+    if (hasPhoto) {
+      try {
+        const thumbBlob = await getPendingThumb()
+        if (thumbBlob) {
+          // Upload to storage: post_thumbs/{user_id}/{post_id}.webp
+          const storagePath = `post_thumbs/${userId}/${newPostId}.webp`
+
+          const { error: uploadError } = await supabase.storage
+            .from('post-images')
+            .upload(storagePath, thumbBlob, {
+              contentType: 'image/webp',
+              upsert: false
+            })
+
+          if (!uploadError) {
+            imageThumbPath = storagePath
+          } else {
+            console.error('Upload error:', uploadError)
+          }
+
+          // Clear pending thumb regardless of success
+          await clearPendingThumb()
+        }
+      } catch (error) {
+        console.error('Error handling photo:', error)
+        await clearPendingThumb()
+      }
+    }
+
+    // Insert post with pre-generated UUID
+    const insertData: Record<string, unknown> = {
+      id: newPostId,
+      user_id: userId,
+      pillar: 'chi_siamo',
+      platform: platform,
+      scheduled_date: weekStartStr,
+      status: 'ready',
+      copy: copy,
+      visible_until: visibleUntil.toISOString()
+    }
+
+    // Add image fields only if we have a thumbnail
+    if (imageThumbPath) {
+      insertData.image_thumb_path = imageThumbPath
+      insertData.image_expires_at = visibleUntil.toISOString()
+    }
+
     const { data: newPost, error: insertError } = await supabase
       .from('posts')
-      .insert({
-        user_id: userId,
-        pillar: 'chi_siamo',
-        platform: platform,
-        scheduled_date: weekStartStr,
-        status: 'ready',
-        copy: copy,
-        visible_until: visibleUntil.toISOString()
-      })
+      .insert(insertData)
       .select('id, copy')
       .single()
 
     if (insertError || !newPost) {
+      console.error('Insert error:', insertError)
       setGenerationError(true)
       setGenerating(false)
       return

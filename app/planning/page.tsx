@@ -22,6 +22,8 @@ interface Post {
   waSharedAt: string | null
   visibleUntil: string | null
   archivedAt: string | null
+  imageThumbPath: string | null
+  imageExpiresAt: string | null
 }
 
 const allPlatforms = ['facebook', 'instagram', 'linkedin', 'tiktok', 'x'] as const
@@ -72,6 +74,7 @@ function PlanningContent() {
   const [userId, setUserId] = useState<string | null>(null)
   const [profile, setProfile] = useState<AgencyProfile | null>(null)
   const [highlightId, setHighlightId] = useState<string | null>(null)
+  const [thumbUrls, setThumbUrls] = useState<Record<string, string>>({})
   const router = useRouter()
   const searchParams = useSearchParams()
   const postRefs = useRef<Record<string, HTMLDivElement | null>>({})
@@ -146,7 +149,9 @@ function PlanningContent() {
         copiedAt: (post.copied_at as string) || null,
         waSharedAt: (post.wa_shared_at as string) || null,
         visibleUntil: (post.visible_until as string) || null,
-        archivedAt: (post.archived_at as string) || null
+        archivedAt: (post.archived_at as string) || null,
+        imageThumbPath: (post.image_thumb_path as string) || null,
+        imageExpiresAt: (post.image_expires_at as string) || null
       })
 
       if (activeData) {
@@ -154,6 +159,23 @@ function PlanningContent() {
           .filter(post => post.copy)
           .map(formatPost)
         setPosts(formattedPosts)
+
+        // Generate signed URLs for thumbnails (60 min expiry)
+        const postsWithThumbs = formattedPosts.filter(p => p.imageThumbPath && p.imageExpiresAt && p.imageExpiresAt > now)
+        if (postsWithThumbs.length > 0) {
+          const urls: Record<string, string> = {}
+          for (const post of postsWithThumbs) {
+            if (post.imageThumbPath) {
+              const { data } = await supabase.storage
+                .from('post-images')
+                .createSignedUrl(post.imageThumbPath, 3600) // 1 hour
+              if (data?.signedUrl) {
+                urls[post.id] = data.signedUrl
+              }
+            }
+          }
+          setThumbUrls(urls)
+        }
       }
 
       if (archivedData) {
@@ -227,7 +249,9 @@ function PlanningContent() {
         copiedAt: newPost.copied_at || null,
         waSharedAt: newPost.wa_shared_at || null,
         visibleUntil: newPost.visible_until || null,
-        archivedAt: newPost.archived_at || null
+        archivedAt: newPost.archived_at || null,
+        imageThumbPath: newPost.image_thumb_path || null,
+        imageExpiresAt: newPost.image_expires_at || null
       }, ...prev])
     }
 
@@ -418,6 +442,13 @@ function PlanningContent() {
 
             const isHighlighted = highlightId === post.id
 
+            // Check if thumbnail should be shown (exists and not expired)
+            const now = new Date().toISOString()
+            const showThumb = !showArchive &&
+                              post.imageThumbPath &&
+                              post.imageExpiresAt &&
+                              post.imageExpiresAt > now
+
             return (
               <div
                 key={post.id}
@@ -443,6 +474,18 @@ function PlanningContent() {
                       )
                     })()}
                   </div>
+
+                  {/* Thumbnail (solo se esiste signed URL) */}
+                  {showThumb && thumbUrls[post.id] && (
+                    <div className="w-12 h-12 flex-shrink-0">
+                      <img
+                        src={thumbUrls[post.id]}
+                        alt=""
+                        className="w-12 h-12 object-cover rounded"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                    </div>
+                  )}
 
                   {/* Post preview */}
                   <div
