@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { platformIcons } from '@/components/SocialIcons'
 
-const DAYS = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM']
 const DAYS_FULL = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 
@@ -240,17 +239,9 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
   const router = useRouter()
   const [weekOffset, setWeekOffset] = useState(0)
   const [view, setView] = useState<'week' | 'month'>('week')
-  const [isMobile, setIsMobile] = useState(false)
 
   const dates = getWeekDates(weekOffset)
   const todayKey = formatDateKey(new Date())
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
 
   // Organizza i post per data
   const postsByDate = posts.reduce((acc, post) => {
@@ -322,124 +313,27 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
       {/* Content */}
       <div className="p-4 bg-gray-50 rounded-b-2xl">
         {view === 'week' ? (
-          isMobile ? (
-            // Mobile: card verticali per giorno
-            <div className="space-y-3">
-              {dates.map((date, i) => {
-                const dateKey = formatDateKey(date)
-                const dayPosts = postsByDate[dateKey] || []
-                const past = isPastDate(date)
-                return (
-                  <MobileDayCard
-                    key={i}
-                    date={date}
-                    dayIndex={i}
-                    dayPosts={dayPosts}
-                    isToday={dateKey === todayKey}
-                    isPast={past}
-                    onPostClick={handlePostClick}
-                    onGenera={handleGenera}
-                    onReplica={handleReplica}
-                  />
-                )
-              })}
-            </div>
-          ) : (
-            // Desktop: griglia con colonne piattaforme
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-              {/* Header piattaforme */}
-              <div className="grid border-b border-gray-200 bg-gray-50" style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}>
-                <div className="px-4 py-3 border-r border-gray-200">
-                  <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Giorno</span>
-                </div>
-                {PLATFORMS.map((p) => (
-                  <div key={p.id} className="px-3 py-2.5 border-r border-gray-200 last:border-r-0 flex items-center gap-2">
-                    <PlatformIcon platformId={p.id} size={18} />
-                    <span className="text-[12px] font-semibold text-gray-700">{p.name}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Righe giorni */}
-              {dates.map((date, dayIndex) => {
-                const dateKey = formatDateKey(date)
-                const dayPosts = postsByDate[dateKey] || []
-                const isToday = dateKey === todayKey
-                const isWeekend = dayIndex >= 5
-                const past = isPastDate(date)
-
-                // Raggruppa post per piattaforma
-                const postsByPlatform = dayPosts.reduce((acc, post) => {
-                  acc[post.platform] = post
-                  return acc
-                }, {} as Record<string, Post>)
-
-                return (
-                  <div
-                    key={dayIndex}
-                    className={`grid border-b border-gray-200 last:border-b-0 ${
-                      isToday ? 'bg-orange-50/50' : isWeekend ? 'bg-gray-50/50' : 'bg-white'
-                    }`}
-                    style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}
-                  >
-                    <div className="px-4 py-3 border-r border-gray-200 flex flex-col justify-center">
-                      <span className={`text-[11px] font-semibold uppercase tracking-wide ${isToday ? 'text-[#ed8936]' : 'text-gray-500'}`}>
-                        {DAYS[dayIndex]}
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-xl font-semibold ${isToday ? 'text-[#ed8936]' : 'text-[#1a365d]'}`}>
-                          {date.getDate()}
-                        </span>
-                        {isToday && <span className="w-1.5 h-1.5 rounded-full bg-[#ed8936]" />}
-                      </div>
-                    </div>
-                    {PLATFORMS.map((platform) => {
-                      const post = postsByPlatform[platform.id]
-                      return (
-                        <div key={platform.id} className="p-2 border-r border-gray-200 last:border-r-0 min-h-[80px] flex items-center">
-                          {post ? (
-                            <div
-                              onClick={() => handlePostClick(post.id)}
-                              className="w-full bg-white border border-gray-200 rounded-lg p-2 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all"
-                            >
-                              <p className="text-[10px] text-gray-600 line-clamp-2 mb-1">{post.copy}</p>
-                              {(post.status === 'copied' || post.status === 'published') && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-green-600">
-                                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                    <polyline points="20 6 9 17 4 12" />
-                                  </svg>
-                                  Copiato
-                                </span>
-                              )}
-                            </div>
-                          ) : !past ? (
-                            <div className="w-full border border-dashed border-gray-200 rounded-lg p-2 flex items-center justify-center min-h-[60px] hover:border-gray-300 hover:bg-gray-50 transition-all">
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleGenera}
-                                  className="px-2 py-1 text-[9px] font-semibold rounded bg-[#1a365d] text-white hover:bg-[#2c5282]"
-                                >
-                                  + Genera
-                                </button>
-                                <button
-                                  onClick={handleReplica}
-                                  className="px-2 py-1 text-[9px] font-semibold rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
-                                >
-                                  Replica
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="w-full text-center text-[10px] text-gray-300">—</div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )
-              })}
-            </div>
-          )
+          // Card per giorno (stesso layout mobile e desktop)
+          <div className="space-y-3 max-w-2xl mx-auto">
+            {dates.map((date, i) => {
+              const dateKey = formatDateKey(date)
+              const dayPosts = postsByDate[dateKey] || []
+              const past = isPastDate(date)
+              return (
+                <MobileDayCard
+                  key={i}
+                  date={date}
+                  dayIndex={i}
+                  dayPosts={dayPosts}
+                  isToday={dateKey === todayKey}
+                  isPast={past}
+                  onPostClick={handlePostClick}
+                  onGenera={handleGenera}
+                  onReplica={handleReplica}
+                />
+              )
+            })}
+          </div>
         ) : (
           // Vista mensile placeholder
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center text-gray-500">
