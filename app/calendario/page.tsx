@@ -11,7 +11,6 @@ interface Post {
   platform: string
   copy: string
   status: string
-  scheduled_date: string | null
   copied_at: string | null
   created_at: string
 }
@@ -31,9 +30,9 @@ export default function CalendarioPage() {
 
       const { data, error } = await supabase
         .from('posts')
-        .select('id, platform, copy, status, scheduled_date, copied_at, created_at')
+        .select('id, platform, copy, status, copied_at, created_at')
         .eq('user_id', session.user.id)
-        .in('status', ['scheduled', 'copied'])
+        .eq('status', 'copied')
         .order('created_at', { ascending: false })
 
       if (error) {

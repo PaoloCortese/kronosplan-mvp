@@ -8,7 +8,7 @@ import { getSession } from '@/lib/auth'
 import { getAgencyProfile, hasPillars, AgencyProfile } from '@/lib/agencyProfile'
 import { platformIcons } from '@/components/SocialIcons'
 
-type PostStatus = 'ready' | 'scheduled' | 'copied' | 'published'
+type PostStatus = 'ready' | 'copied' | 'published'
 
 interface Post {
   id: string
@@ -236,22 +236,6 @@ function PlanningContent() {
     }
   }
 
-  const handleSchedule = async (post: Post) => {
-    const now = new Date().toISOString()
-    const today = now.split('T')[0]
-
-    await supabase
-      .from('posts')
-      .update({ status: 'scheduled', scheduled_date: today })
-      .eq('id', post.id)
-
-    setPosts(prev => prev.map(p =>
-      p.id === post.id
-        ? { ...p, status: 'scheduled' as PostStatus, scheduledDate: today }
-        : p
-    ))
-  }
-
   const handleWhatsApp = async (post: Post) => {
     const text = encodeURIComponent(post.copy)
     window.open(`https://wa.me/?text=${text}`, '_blank')
@@ -348,10 +332,8 @@ function PlanningContent() {
             const availablePlatforms = getAvailablePlatforms(post)
             const isReplicating = replicatingId === post.id
             const isCopied = post.status === 'copied' || post.status === 'published'
-            const isScheduled = post.status === 'scheduled'
 
             const cardBg = platformColors[post.platform] || ''
-            const scheduledBorder = isScheduled ? 'ring-2 ring-red-400' : ''
 
             const isHighlighted = highlightId === post.id
 
@@ -360,7 +342,7 @@ function PlanningContent() {
                 key={post.id}
                 ref={(el) => { postRefs.current[post.id] = el }}
               >
-                <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''} ${scheduledBorder}`}>
+                <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''}`}>
                 <div className="flex items-center gap-4">
                   {/* Data */}
                   <div className="w-16 text-center flex-shrink-0">
@@ -435,24 +417,6 @@ function PlanningContent() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      {/* Programma - solo se non copiato e non schedulato */}
-                      {!isCopied && !isScheduled && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleSchedule(post)
-                          }}
-                          className="px-3 py-1 text-xs rounded border border-red-400 text-red-500 hover:bg-red-50 transition-colors"
-                        >
-                          Programma
-                        </button>
-                      )}
-                      {/* Indicatore Programmato */}
-                      {isScheduled && (
-                        <span className="px-2 py-1 text-[10px] font-medium rounded bg-red-100 text-red-600">
-                          📅 Programmato
-                        </span>
-                      )}
                       {/* Copia - pulsante con testo */}
                       <button
                         onClick={(e) => {
