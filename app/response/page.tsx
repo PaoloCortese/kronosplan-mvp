@@ -95,8 +95,8 @@ function ResponseContent() {
         const thumbBlob = await getPendingThumb()
         console.log('[photo-upload] thumbBlob from IndexedDB:', thumbBlob ? `${thumbBlob.size} bytes` : 'null')
         if (thumbBlob) {
-          // Upload to storage: post_thumbs/{user_id}/{post_id}.webp
-          const storagePath = `post_thumbs/${userId}/${newPostId}.webp`
+          // Upload to storage: {user_id}/{post_id}.webp
+          const storagePath = `${userId}/${newPostId}.webp`
           console.log('[photo-upload] storagePath:', storagePath)
 
           const { error: uploadError } = await supabase.storage
