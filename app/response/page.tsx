@@ -77,6 +77,10 @@ function ResponseContent() {
 
     const { copy } = await response.json()
 
+    // Calcola visible_until (created_at + 60 giorni)
+    const visibleUntil = new Date()
+    visibleUntil.setDate(visibleUntil.getDate() + 60)
+
     const { data: newPost, error: insertError } = await supabase
       .from('posts')
       .insert({
@@ -85,7 +89,8 @@ function ResponseContent() {
         platform: platform,
         scheduled_date: weekStartStr,
         status: 'ready',
-        copy: copy
+        copy: copy,
+        visible_until: visibleUntil.toISOString()
       })
       .select('id, copy')
       .single()

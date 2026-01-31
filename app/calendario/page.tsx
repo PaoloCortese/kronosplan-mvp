@@ -28,11 +28,16 @@ export default function CalendarioPage() {
         return
       }
 
+      const now = new Date().toISOString()
+
+      // Solo post copiati, non archiviati, con TTL valido
       const { data, error } = await supabase
         .from('posts')
         .select('id, platform, copy, status, copied_at, created_at')
         .eq('user_id', session.user.id)
         .eq('status', 'copied')
+        .is('archived_at', null)
+        .gt('visible_until', now)
         .order('created_at', { ascending: false })
 
       if (error) {

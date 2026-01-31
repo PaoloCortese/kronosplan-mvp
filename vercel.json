@@ -1,5 +1,11 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "crons": [
+    {
+      "path": "/api/cleanup-posts",
+      "schedule": "0 3 * * *"
+    }
+  ]
 }
