@@ -56,14 +56,6 @@ function formatWeekRange(dates: Date[]) {
   return `${first.getDate()} ${MONTHS[first.getMonth()].slice(0, 3)} – ${last.getDate()} ${MONTHS[last.getMonth()].slice(0, 3)}`
 }
 
-function isPastDate(date: Date) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const compareDate = new Date(date)
-  compareDate.setHours(0, 0, 0, 0)
-  return compareDate < today
-}
-
 function PlatformIcon({ platformId }: { platformId: string }) {
   const platform = PLATFORMS.find(p => p.id === platformId)
   const IconComponent = platformIcons[platformId as keyof typeof platformIcons]
@@ -109,7 +101,6 @@ function DayCard({
   dayIndex,
   dayPosts,
   isToday,
-  isPast,
   onPostClick,
   onGenera,
   onReplica
@@ -118,7 +109,6 @@ function DayCard({
   dayIndex: number
   dayPosts: Post[]
   isToday: boolean
-  isPast: boolean
   onPostClick: (postId: string) => void
   onGenera: () => void
   onReplica: () => void
@@ -146,8 +136,8 @@ function DayCard({
           <PostCell key={post.id} post={post} onClick={() => onPostClick(post.id)} />
         ))}
 
-        {/* Azioni - solo per giorni non passati */}
-        {!isPast && (
+        {/* Azioni - solo per oggi */}
+        {isToday && (
           <div className="flex gap-2 pt-2">
             <button
               onClick={onGenera}
@@ -172,8 +162,8 @@ function DayCard({
           </div>
         )}
 
-        {/* Giorno passato senza post */}
-        {isPast && dayPosts.length === 0 && (
+        {/* Giorno senza post (escluso oggi) */}
+        {!isToday && dayPosts.length === 0 && (
           <p className="text-xs text-gray-400 text-center py-2">Nessun post</p>
         )}
       </div>
@@ -243,7 +233,6 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
         {dates.map((date, i) => {
           const dateKey = formatDateKey(date)
           const dayPosts = postsByDate[dateKey] || []
-          const past = isPastDate(date)
           return (
             <DayCard
               key={i}
@@ -251,7 +240,6 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
               dayIndex={i}
               dayPosts={dayPosts}
               isToday={dateKey === todayKey}
-              isPast={past}
               onPostClick={handlePostClick}
               onGenera={handleGenera}
               onReplica={handleReplica}
