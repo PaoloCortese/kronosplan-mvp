@@ -13,6 +13,7 @@ const PLATFORMS = [
   { id: 'instagram', name: 'Instagram', color: '#E4405F' },
   { id: 'linkedin', name: 'LinkedIn', color: '#0A66C2' },
   { id: 'tiktok', name: 'TikTok', color: '#000000' },
+  { id: 'x', name: 'X', color: '#000000' },
 ]
 
 interface Post {
@@ -56,6 +57,14 @@ function formatWeekRange(dates: Date[]) {
   return `${first.getDate()} ${MONTHS[first.getMonth()].slice(0, 3)} – ${last.getDate()} ${MONTHS[last.getMonth()].slice(0, 3)} ${last.getFullYear()}`
 }
 
+function isPastDate(date: Date) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const compareDate = new Date(date)
+  compareDate.setHours(0, 0, 0, 0)
+  return compareDate < today
+}
+
 function PlatformIcon({ platformId, size = 20 }: { platformId: string; size?: number }) {
   const platform = PLATFORMS.find(p => p.id === platformId)
   const IconComponent = platformIcons[platformId as keyof typeof platformIcons]
@@ -80,52 +89,40 @@ function PlatformIcon({ platformId, size = 20 }: { platformId: string; size?: nu
 }
 
 function PostCell({ post, onClick }: { post: Post; onClick: () => void }) {
-  const [hovered, setHovered] = useState(false)
   const isCopied = post.status === 'copied' || post.status === 'published'
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onClick={onClick}
-      className={`bg-white border border-gray-200 rounded-xl p-3 cursor-pointer transition-all min-h-[80px] flex flex-col gap-2 ${
-        hovered ? 'shadow-md -translate-y-0.5 border-gray-300' : 'shadow-sm'
-      }`}
+      className="bg-white border border-gray-200 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-gray-300 shadow-sm flex items-start gap-3"
     >
-      <div className="flex items-center justify-end">
-        {isCopied && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-            Copiato
-          </span>
-        )}
+      <PlatformIcon platformId={post.platform} size={24} />
+      <div className="flex-1 min-w-0">
+        <p className="text-[12px] text-gray-700 leading-snug line-clamp-2">
+          {post.copy}
+        </p>
       </div>
-      <p className="text-[11px] text-gray-600 leading-snug line-clamp-2 flex-1">
-        {post.copy}
-      </p>
+      {isCopied && (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700 flex-shrink-0">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Copiato
+        </span>
+      )}
     </div>
   )
 }
 
 function EmptyCell({ onGenera, onReplica }: { onGenera: () => void; onReplica: () => void }) {
-  const [hovered, setHovered] = useState(false)
-
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={`border-2 border-dashed rounded-xl min-h-[80px] flex items-center justify-center transition-all ${
-        hovered ? 'border-gray-300 bg-gray-50' : 'border-gray-200'
-      }`}
-    >
-      <div className={`flex gap-2 transition-opacity ${hovered ? 'opacity-100' : 'opacity-40'}`}>
+    <div className="border-2 border-dashed border-gray-200 rounded-xl py-4 flex items-center justify-center hover:border-gray-300 hover:bg-gray-50 transition-all">
+      <div className="flex gap-2">
         <button
           onClick={onGenera}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-[#1a365d] text-white hover:bg-[#2c5282] transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold rounded-lg bg-[#1a365d] text-white hover:bg-[#2c5282] transition-colors"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -133,9 +130,9 @@ function EmptyCell({ onGenera, onReplica }: { onGenera: () => void; onReplica: (
         </button>
         <button
           onClick={onReplica}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-[11px] font-semibold rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 transition-colors"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
@@ -186,16 +183,18 @@ function WeekBadge({ count }: { count: number }) {
 function MobileDayCard({
   date,
   dayIndex,
-  posts,
+  dayPosts,
   isToday,
+  isPast,
   onPostClick,
   onGenera,
   onReplica
 }: {
   date: Date
   dayIndex: number
-  posts: Record<string, Post | undefined>
+  dayPosts: Post[]
   isToday: boolean
+  isPast: boolean
   onPostClick: (postId: string) => void
   onGenera: () => void
   onReplica: () => void
@@ -216,23 +215,22 @@ function MobileDayCard({
         )}
       </div>
       <div className="p-3 space-y-2">
-        {PLATFORMS.map((platform) => {
-          const post = posts[platform.id]
-          return (
-            <div key={platform.id} className="flex gap-2 items-start">
-              <div className="pt-1 flex-shrink-0">
-                <PlatformIcon platformId={platform.id} size={22} />
-              </div>
-              <div className="flex-1">
-                {post ? (
-                  <PostCell post={post} onClick={() => onPostClick(post.id)} />
-                ) : (
-                  <EmptyCell onGenera={onGenera} onReplica={onReplica} />
-                )}
-              </div>
-            </div>
-          )
-        })}
+        {/* Post esistenti */}
+        {dayPosts.map((post) => (
+          <PostCell key={post.id} post={post} onClick={() => onPostClick(post.id)} />
+        ))}
+
+        {/* Box Genera/Replica - solo se non è un giorno passato */}
+        {!isPast && (
+          <EmptyCell onGenera={onGenera} onReplica={onReplica} />
+        )}
+
+        {/* Se giorno passato e nessun post */}
+        {isPast && dayPosts.length === 0 && (
+          <div className="py-4 text-center text-xs text-gray-400">
+            Nessun post
+          </div>
+        )}
       </div>
     </div>
   )
@@ -254,20 +252,20 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Organizza i post per data e piattaforma
-  const postsByDateAndPlatform = posts.reduce((acc, post) => {
+  // Organizza i post per data
+  const postsByDate = posts.reduce((acc, post) => {
     const dateKey = post.copied_at?.split('T')[0] || post.created_at?.split('T')[0]
     if (!dateKey) return acc
-    if (!acc[dateKey]) acc[dateKey] = {}
-    acc[dateKey][post.platform] = post
+    if (!acc[dateKey]) acc[dateKey] = []
+    acc[dateKey].push(post)
     return acc
-  }, {} as Record<string, Record<string, Post>>)
+  }, {} as Record<string, Post[]>)
 
   // Conta post della settimana corrente
   const weekPostCount = dates.reduce((count, date) => {
     const dateKey = formatDateKey(date)
-    const dayPosts = postsByDateAndPlatform[dateKey] || {}
-    return count + Object.keys(dayPosts).length
+    const dayPosts = postsByDate[dateKey] || []
+    return count + dayPosts.length
   }, 0)
 
   const handlePostClick = (postId: string) => {
@@ -325,18 +323,20 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
       <div className="p-4 bg-gray-50 rounded-b-2xl">
         {view === 'week' ? (
           isMobile ? (
-            // Mobile: card verticali
+            // Mobile: card verticali per giorno
             <div className="space-y-3">
               {dates.map((date, i) => {
                 const dateKey = formatDateKey(date)
-                const dayPosts = postsByDateAndPlatform[dateKey] || {}
+                const dayPosts = postsByDate[dateKey] || []
+                const past = isPastDate(date)
                 return (
                   <MobileDayCard
                     key={i}
                     date={date}
                     dayIndex={i}
-                    posts={dayPosts}
+                    dayPosts={dayPosts}
                     isToday={dateKey === todayKey}
+                    isPast={past}
                     onPostClick={handlePostClick}
                     onGenera={handleGenera}
                     onReplica={handleReplica}
@@ -345,17 +345,17 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
               })}
             </div>
           ) : (
-            // Desktop: griglia
+            // Desktop: griglia con colonne piattaforme
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
               {/* Header piattaforme */}
-              <div className="grid border-b border-gray-200 bg-gray-50" style={{ gridTemplateColumns: '100px repeat(4, 1fr)' }}>
+              <div className="grid border-b border-gray-200 bg-gray-50" style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}>
                 <div className="px-4 py-3 border-r border-gray-200">
                   <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Giorno</span>
                 </div>
                 {PLATFORMS.map((p) => (
-                  <div key={p.id} className="px-4 py-2.5 border-r border-gray-200 last:border-r-0 flex items-center gap-2">
-                    <PlatformIcon platformId={p.id} size={20} />
-                    <span className="text-[13px] font-semibold text-gray-700">{p.name}</span>
+                  <div key={p.id} className="px-3 py-2.5 border-r border-gray-200 last:border-r-0 flex items-center gap-2">
+                    <PlatformIcon platformId={p.id} size={18} />
+                    <span className="text-[12px] font-semibold text-gray-700">{p.name}</span>
                   </div>
                 ))}
               </div>
@@ -363,9 +363,16 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
               {/* Righe giorni */}
               {dates.map((date, dayIndex) => {
                 const dateKey = formatDateKey(date)
-                const dayPosts = postsByDateAndPlatform[dateKey] || {}
+                const dayPosts = postsByDate[dateKey] || []
                 const isToday = dateKey === todayKey
                 const isWeekend = dayIndex >= 5
+                const past = isPastDate(date)
+
+                // Raggruppa post per piattaforma
+                const postsByPlatform = dayPosts.reduce((acc, post) => {
+                  acc[post.platform] = post
+                  return acc
+                }, {} as Record<string, Post>)
 
                 return (
                   <div
@@ -373,7 +380,7 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
                     className={`grid border-b border-gray-200 last:border-b-0 ${
                       isToday ? 'bg-orange-50/50' : isWeekend ? 'bg-gray-50/50' : 'bg-white'
                     }`}
-                    style={{ gridTemplateColumns: '100px repeat(4, 1fr)' }}
+                    style={{ gridTemplateColumns: '100px repeat(5, 1fr)' }}
                   >
                     <div className="px-4 py-3 border-r border-gray-200 flex flex-col justify-center">
                       <span className={`text-[11px] font-semibold uppercase tracking-wide ${isToday ? 'text-[#ed8936]' : 'text-gray-500'}`}>
@@ -387,13 +394,43 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
                       </div>
                     </div>
                     {PLATFORMS.map((platform) => {
-                      const post = dayPosts[platform.id]
+                      const post = postsByPlatform[platform.id]
                       return (
-                        <div key={platform.id} className="p-2 border-r border-gray-200 last:border-r-0 min-h-[96px]">
+                        <div key={platform.id} className="p-2 border-r border-gray-200 last:border-r-0 min-h-[80px] flex items-center">
                           {post ? (
-                            <PostCell post={post} onClick={() => handlePostClick(post.id)} />
+                            <div
+                              onClick={() => handlePostClick(post.id)}
+                              className="w-full bg-white border border-gray-200 rounded-lg p-2 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all"
+                            >
+                              <p className="text-[10px] text-gray-600 line-clamp-2 mb-1">{post.copy}</p>
+                              {(post.status === 'copied' || post.status === 'published') && (
+                                <span className="inline-flex items-center gap-0.5 text-[9px] font-semibold text-green-600">
+                                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                  Copiato
+                                </span>
+                              )}
+                            </div>
+                          ) : !past ? (
+                            <div className="w-full border border-dashed border-gray-200 rounded-lg p-2 flex items-center justify-center min-h-[60px] hover:border-gray-300 hover:bg-gray-50 transition-all">
+                              <div className="flex gap-1">
+                                <button
+                                  onClick={handleGenera}
+                                  className="px-2 py-1 text-[9px] font-semibold rounded bg-[#1a365d] text-white hover:bg-[#2c5282]"
+                                >
+                                  + Genera
+                                </button>
+                                <button
+                                  onClick={handleReplica}
+                                  className="px-2 py-1 text-[9px] font-semibold rounded border border-gray-300 text-gray-600 hover:bg-gray-100"
+                                >
+                                  Replica
+                                </button>
+                              </div>
+                            </div>
                           ) : (
-                            <EmptyCell onGenera={handleGenera} onReplica={handleReplica} />
+                            <div className="w-full text-center text-[10px] text-gray-300">—</div>
                           )}
                         </div>
                       )
@@ -404,7 +441,7 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
             </div>
           )
         ) : (
-          // Vista mensile placeholder - usa il calendario esistente
+          // Vista mensile placeholder
           <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center text-gray-500">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" className="mx-auto mb-4">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
