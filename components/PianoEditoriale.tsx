@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { platformIcons } from '@/components/SocialIcons'
+import { supabase } from '@/lib/supabaseClient'
 
 const DAYS_FULL = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
@@ -20,6 +21,7 @@ interface Post {
   platform: string
   copy: string
   status: string
+  scheduled_date: string | null
   copied_at: string | null
   created_at: string
 }
@@ -72,18 +74,34 @@ function PlatformIcon({ platformId }: { platformId: string }) {
   )
 }
 
-function PostCell({ post, onClick }: { post: Post; onClick: () => void }) {
+function PostCell({ post, onClick, onCopy }: { post: Post; onClick: () => void; onCopy?: () => void }) {
+  const isScheduled = post.status === 'scheduled'
   const isCopied = post.status === 'copied' || post.status === 'published'
 
   return (
     <div
       onClick={onClick}
-      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+        isScheduled
+          ? 'bg-red-50 border border-red-200 hover:bg-red-100'
+          : 'bg-gray-50 hover:bg-gray-100'
+      }`}
     >
       <PlatformIcon platformId={post.platform} />
       <p className="flex-1 text-sm text-gray-700 line-clamp-2">
         {post.copy}
       </p>
+      {isScheduled && onCopy && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onCopy()
+          }}
+          className="px-2 py-1 text-[10px] font-medium rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
+        >
+          Copia
+        </button>
+      )}
       {isCopied && (
         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-700">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -102,6 +120,7 @@ function DayCard({
   dayPosts,
   isToday,
   onPostClick,
+  onCopyPost,
   onGenera,
   onReplica
 }: {
@@ -110,6 +129,7 @@ function DayCard({
   dayPosts: Post[]
   isToday: boolean
   onPostClick: (postId: string) => void
+  onCopyPost: (post: Post) => void
   onGenera: () => void
   onReplica: () => void
 }) {
@@ -133,7 +153,12 @@ function DayCard({
       {/* Post */}
       <div className="space-y-2">
         {dayPosts.map((post) => (
-          <PostCell key={post.id} post={post} onClick={() => onPostClick(post.id)} />
+          <PostCell
+            key={post.id}
+            post={post}
+            onClick={() => onPostClick(post.id)}
+            onCopy={post.status === 'scheduled' ? () => onCopyPost(post) : undefined}
+          />
         ))}
 
         {/* Azioni - solo per oggi */}
@@ -174,13 +199,23 @@ function DayCard({
 export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
   const router = useRouter()
   const [weekOffset, setWeekOffset] = useState(0)
+  const [localPosts, setLocalPosts] = useState(posts)
 
   const dates = getWeekDates(weekOffset)
   const todayKey = formatDateKey(new Date())
 
   // Organizza i post per data
-  const postsByDate = posts.reduce((acc, post) => {
-    const dateKey = post.copied_at?.split('T')[0] || post.created_at?.split('T')[0]
+  // - scheduled: usa scheduled_date
+  // - copied: usa copied_at
+  const postsByDate = localPosts.reduce((acc, post) => {
+    let dateKey: string | undefined
+
+    if (post.status === 'scheduled') {
+      dateKey = post.scheduled_date?.split('T')[0]
+    } else {
+      dateKey = post.copied_at?.split('T')[0]
+    }
+
     if (!dateKey) return acc
     if (!acc[dateKey]) acc[dateKey] = []
     acc[dateKey].push(post)
@@ -189,6 +224,26 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
 
   const handlePostClick = (postId: string) => {
     router.push(`/planning?highlight=${postId}`)
+  }
+
+  const handleCopyPost = async (post: Post) => {
+    try {
+      await navigator.clipboard.writeText(post.copy)
+      const now = new Date().toISOString()
+
+      await supabase
+        .from('posts')
+        .update({ status: 'copied', copied_at: now })
+        .eq('id', post.id)
+
+      setLocalPosts(prev => prev.map(p =>
+        p.id === post.id
+          ? { ...p, status: 'copied', copied_at: now }
+          : p
+      ))
+    } catch (error) {
+      console.error('Copy failed:', error)
+    }
   }
 
   const handleGenera = () => {
@@ -241,6 +296,7 @@ export default function PianoEditoriale({ posts }: PianoEditorialeProps) {
               dayPosts={dayPosts}
               isToday={dateKey === todayKey}
               onPostClick={handlePostClick}
+              onCopyPost={handleCopyPost}
               onGenera={handleGenera}
               onReplica={handleReplica}
             />
