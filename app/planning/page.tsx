@@ -342,7 +342,7 @@ function PlanningContent() {
                 key={post.id}
                 ref={(el) => { postRefs.current[post.id] = el }}
               >
-                <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''}`}>
+                <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''} ${!isCopied ? 'ring-2 ring-red-400' : ''}`}>
                 <div className="flex items-center gap-4">
                   {/* Data */}
                   <div className="w-16 text-center flex-shrink-0">
