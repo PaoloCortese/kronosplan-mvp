@@ -32,7 +32,8 @@ export default function CalendarioPage() {
         .from('posts')
         .select('id, platform, copy, status, copied_at, created_at')
         .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
+        .eq('status', 'copied')
+        .order('copied_at', { ascending: false })
 
       if (error) {
         console.error('Error fetching posts:', error)
