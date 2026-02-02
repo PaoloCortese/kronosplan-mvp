@@ -540,19 +540,33 @@ function PlanningContent() {
                       </div>
                       <div className="flex items-center gap-2">
                         {/* Copia - pulsante con testo */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleCopy(post)
-                          }}
-                          className={`px-3 py-1 text-xs rounded transition-colors ${
-                            isCopied
-                              ? 'text-blue-500 border-2 border-blue-500 bg-blue-50'
-                              : 'text-[#1a365d] border border-[#1a365d] hover:bg-[#1a365d]/5'
-                          }`}
-                        >
-                          Copia
-                        </button>
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCopy(post)
+                            }}
+                            className={`px-3 py-1 text-xs rounded transition-colors ${
+                              isCopied
+                                ? 'text-blue-500 border-2 border-blue-500 bg-blue-50'
+                                : 'text-[#1a365d] border border-[#1a365d] hover:bg-[#1a365d]/5'
+                            }`}
+                          >
+                            Copia
+                          </button>
+                          {isCopied && (
+                            <>
+                              <div className="absolute -top-1 -left-1">
+                                <CheckIcon copied={true} />
+                              </div>
+                              {post.copiedAt && (
+                                <div className="absolute top-full mt-0.5 left-0 text-[10px] text-gray-500 whitespace-nowrap">
+                                  {formatDateTime(post.copiedAt)}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
                         {/* WhatsApp con spunte sovrapposte */}
                         <button
                           onClick={(e) => {
