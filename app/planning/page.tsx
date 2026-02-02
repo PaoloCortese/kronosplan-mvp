@@ -498,17 +498,6 @@ function PlanningContent() {
                     </p>
                   </div>
 
-                  {/* Stato copia - doppia spunta + data/ora (solo se copiato) */}
-                  {isCopied && (
-                    <div className="flex-shrink-0 ml-2 h-12 flex flex-col items-center justify-center text-center">
-                      <CheckIcon copied={true} />
-                      {post.copiedAt && (
-                        <span className="text-[10px] text-gray-500 mt-0.5 block">
-                          {formatDateTime(post.copiedAt)}
-                        </span>
-                      )}
-                    </div>
-                  )}
 
                   {/* Badge archiviato */}
                   {showArchive && (
