@@ -500,14 +500,12 @@ function PlanningContent() {
 
                   {/* Stato copia - doppia spunta + data/ora (solo se copiato) */}
                   {isCopied && (
-                    <div className="flex-shrink-0 ml-2 text-center">
-                      <div className="flex items-center justify-center">
-                        <CheckIcon copied={true} />
-                      </div>
+                    <div className="flex-shrink-0 ml-2 h-12 flex flex-col items-center justify-center text-center">
+                      <CheckIcon copied={true} />
                       {post.copiedAt && (
-                        <div className="text-[10px] text-gray-500 mt-0.5">
+                        <span className="text-[10px] text-gray-500 mt-0.5 block">
                           {formatDateTime(post.copiedAt)}
-                        </div>
+                        </span>
                       )}
                     </div>
                   )}
