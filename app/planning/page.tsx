@@ -556,7 +556,7 @@ function PlanningContent() {
                           </button>
                           {isCopied && (
                             <>
-                              <div className="absolute -top-2 -right-1">
+                              <div className="absolute -top-3 -right-1">
                                 <CheckIcon copied={true} />
                               </div>
                               {post.copiedAt && (
