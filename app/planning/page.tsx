@@ -556,11 +556,11 @@ function PlanningContent() {
                           </button>
                           {isCopied && (
                             <>
-                              <div className="absolute -top-2 left-1">
+                              <div className="absolute -top-2 -right-1">
                                 <CheckIcon copied={true} />
                               </div>
                               {post.copiedAt && (
-                                <div className="absolute top-full mt-0.5 left-0 text-[10px] text-gray-500 whitespace-nowrap">
+                                <div className="absolute top-full mt-0.5 right-0 text-[10px] text-gray-500 whitespace-nowrap">
                                   {formatDateTime(post.copiedAt)}
                                 </div>
                               )}
