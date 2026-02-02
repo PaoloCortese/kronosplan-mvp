@@ -458,14 +458,14 @@ function PlanningContent() {
                 <Card className={`hover:shadow-md transition-all ${cardBg} ${isHighlighted ? 'ring-2 ring-[#ed8936] shadow-lg' : ''} ${!isCopied && !showArchive ? 'ring-2 ring-red-400' : ''}`}>
                 <div className="flex items-center gap-4">
                   {/* Data */}
-                  <div className="w-16 text-center flex-shrink-0">
+                  <div className="w-16 flex items-center justify-center flex-shrink-0">
                     <span className="text-xs text-gray-500">
                       {formatDate(post.createdAt)}
                     </span>
                   </div>
 
                   {/* Piattaforma - icona simbolo */}
-                  <div className="w-8 flex-shrink-0">
+                  <div className="w-8 flex items-center justify-center flex-shrink-0">
                     {(() => {
                       const IconComponent = platformIcons[post.platform as keyof typeof platformIcons]
                       return IconComponent ? (
