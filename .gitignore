@@ -87,3 +87,5 @@ rls-runtime-test.sql
 POST_DEPLOY_HARDENING.md
 service-worker.js
 docs/
+
+tsconfig.tsbuildinfo
